@@ -3845,6 +3845,15 @@ ${bilibiliBridgeContext}
 }
 
 // ========== Bilibili Integration ==========
+const BILIBILI_API_BASE = (() => {
+  const savedBase = localStorage.getItem('parallax_bilibili_api_base');
+  if (savedBase) return savedBase;
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return `http://localhost:3001/api`;
+  }
+  return '';
+})();
+
 const MOCK_BILIBILI_DATA = {
   isAuthorized: true,
   following: [
@@ -3865,6 +3874,8 @@ const MOCK_BILIBILI_DATA = {
   ]
 };
 
+let bilibiliAuthWindow = null;
+
 function showBilibiliAuth() {
   document.getElementById('bilibiliAuthOverlay').classList.add('show');
 }
@@ -3874,7 +3885,53 @@ function hideBilibiliAuth(event) {
   document.getElementById('bilibiliAuthOverlay').classList.remove('show');
 }
 
-function bindBilibili() {
+async function bindBilibili() {
+  if (!BILIBILI_API_BASE) {
+    bindBilibiliMock();
+    return;
+  }
+  
+  try {
+    const response = await fetch(`${BILIBILI_API_BASE}/bilibili/login`);
+    const data = await response.json();
+    
+    if (data.url) {
+      const width = 500;
+      const height = 700;
+      const left = (window.screen.width - width) / 2;
+      const top = (window.screen.height - height) / 2;
+      
+      bilibiliAuthWindow = window.open(
+        data.url,
+        'bilibili_auth',
+        `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+      );
+      
+      window.addEventListener('message', handleBilibiliAuthMessage, false);
+      
+      setTimeout(() => {
+        if (bilibiliAuthWindow && !bilibiliAuthWindow.closed) {
+        }
+      }, 1000);
+      
+    } else {
+      showToast('获取授权地址失败', 'error');
+    }
+  } catch (e) {
+    console.warn('后端服务不可用，使用模拟模式:', e);
+    bindBilibiliMock();
+  }
+}
+
+function handleBilibiliAuthMessage(event) {
+  if (event.data && event.data.type === 'BILIBILI_AUTH_SUCCESS') {
+    window.removeEventListener('message', handleBilibiliAuthMessage);
+    const accessToken = event.data.accessToken;
+    completeBilibiliAuth(accessToken, event.data.isMock);
+  }
+}
+
+function bindBilibiliMock() {
   state.bilibiliAuth.isAuthorized = true;
   state.bilibiliAuth.accessToken = 'mock_access_token_' + Date.now();
   state.bilibiliAuth.expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
@@ -3887,6 +3944,42 @@ function bindBilibili() {
   
   hideBilibiliAuth();
   saveToLocalStorage();
+  showToast('B站账号绑定成功！（模拟模式）', 'success');
+  
+  if (state.currentScreen === 0) {
+    goToScreen(1);
+    updateBilibiliHint();
+  } else {
+    updateBilibiliStatus();
+  }
+}
+
+async function completeBilibiliAuth(accessToken, isMock = false) {
+  if (bilibiliAuthWindow) {
+    bilibiliAuthWindow.close();
+    bilibiliAuthWindow = null;
+  }
+  
+  state.bilibiliAuth.isAuthorized = true;
+  state.bilibiliAuth.accessToken = accessToken;
+  state.bilibiliAuth.expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+  
+  showToast('正在获取B站数据...', 'info');
+  
+  try {
+    await fetchBilibiliFollowing(accessToken);
+  } catch (e) {
+    console.warn('获取关注列表失败，使用模拟数据:', e);
+    state.bilibiliData.following = [...MOCK_BILIBILI_DATA.following];
+    state.bilibiliData.followingTags = [...MOCK_BILIBILI_DATA.followingTags];
+    state.bilibiliData.followingKeywords = [...MOCK_BILIBILI_DATA.followingKeywords];
+    state.bilibiliData.videos = [...MOCK_BILIBILI_DATA.videos];
+  }
+  
+  state.bilibiliData.lastUpdated = new Date().toISOString();
+  
+  hideBilibiliAuth();
+  saveToLocalStorage();
   showToast('B站账号绑定成功！', 'success');
   
   if (state.currentScreen === 0) {
@@ -3895,6 +3988,65 @@ function bindBilibili() {
   } else {
     updateBilibiliStatus();
   }
+}
+
+async function fetchBilibiliFollowing(accessToken) {
+  if (!BILIBILI_API_BASE) throw new Error('无后端服务');
+  
+  const response = await fetch(`${BILIBILI_API_BASE}/bilibili/following?access_token=${accessToken}`);
+  const data = await response.json();
+  
+  if (data.code === 0 && data.data && data.data.list) {
+    const followingList = data.data.list;
+    state.bilibiliData.following = followingList.map(item => ({
+      mid: item.mid,
+      uname: item.uname,
+      sign: item.sign,
+      face: item.face
+    }));
+    
+    const { tags, keywords } = extractTagsFromFollowing(followingList);
+    state.bilibiliData.followingTags = tags;
+    state.bilibiliData.followingKeywords = keywords;
+  } else {
+    throw new Error(data.message || '获取失败');
+  }
+}
+
+function extractTagsFromFollowing(followingList) {
+  const tagKeywords = {
+    '前端开发': ['前端', 'react', 'vue', 'javascript', 'css', 'html', 'web开发'],
+    '后端开发': ['后端', 'java', 'python', 'go', 'golang', 'node', 'spring'],
+    '人工智能': ['ai', '人工智能', '深度学习', '机器学习', '大模型', 'gpt', '神经网络'],
+    '系统设计': ['架构', '分布式', '微服务', '系统设计', '云原生', 'k8s'],
+    '认知科学': ['认知', '心理学', '神经科学', '行为', '思维'],
+    '产品设计': ['产品', '交互', 'ux', 'ui', '设计', '用户体验'],
+    '历史研究': ['历史', '古代', '近代史', '世界史', '中国史'],
+    '经济学': ['经济', '金融', '投资', '理财', '宏观', '微观'],
+    '编程技术': ['编程', '代码', '程序员', '开发', '算法', '数据结构'],
+    '设计美学': ['设计', '美学', '艺术', '视觉', '品牌', '平面']
+  };
+  
+  const foundTags = new Set();
+  const foundKeywords = new Set();
+  
+  for (const up of followingList) {
+    const text = (up.uname + ' ' + up.sign).toLowerCase();
+    for (const [tag, keywords] of Object.entries(tagKeywords)) {
+      for (const kw of keywords) {
+        if (text.includes(kw)) {
+          foundTags.add(tag);
+          foundKeywords.add(kw);
+          break;
+        }
+      }
+    }
+  }
+  
+  return {
+    tags: Array.from(foundTags).slice(0, 8),
+    keywords: Array.from(foundKeywords).slice(0, 12)
+  };
 }
 
 function skipBilibiliAuth() {
@@ -3927,10 +4079,23 @@ function unbindBilibili() {
   showToast('已解绑B站账号', 'info');
 }
 
-function refreshBilibiliData() {
+async function refreshBilibiliData() {
   if (!state.bilibiliAuth.isAuthorized) return;
   
   showToast('正在刷新B站数据...', 'info');
+  
+  if (BILIBILI_API_BASE && state.bilibiliAuth.accessToken) {
+    try {
+      await fetchBilibiliFollowing(state.bilibiliAuth.accessToken);
+      state.bilibiliData.lastUpdated = new Date().toISOString();
+      saveToLocalStorage();
+      updateBilibiliStatus();
+      showToast('B站数据已更新', 'success');
+      return;
+    } catch (e) {
+      console.warn('刷新失败，使用缓存数据:', e);
+    }
+  }
   
   setTimeout(() => {
     state.bilibiliData.lastUpdated = new Date().toISOString();
