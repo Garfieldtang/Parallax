@@ -2052,6 +2052,10 @@ async function callDeepSeekAPI(prompt, systemPrompt = '') {
     return data.choices[0].message.content;
   } catch (error) {
     console.error('DeepSeek API 调用失败:', error);
+    // Restore state on error
+    state.isTyping = false;
+    const sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) sendBtn.disabled = false;
     showApiError('网络错误', '网络连接失败，请稍后重试');
     return null;
   }
@@ -2115,8 +2119,14 @@ function goToScreen(n) {
   if (n === 1 && state.stars.length === 0) {
     refreshFields();
   }
-  if (n === 2 && state.chatHistory.length === 0) {
-    startChat();
+  if (n === 2) {
+    // Clear chat history when starting a new exploration
+    state.chatHistory = [];
+    state.currentRound = 0;
+    state.isTyping = false;
+    if (state.chatHistory.length === 0) {
+      startChat();
+    }
   }
   if (n === 3) {
     generateProfile();
@@ -2140,7 +2150,12 @@ const allFields = [
 ];
 
 function pickRandomFields(count) {
-  const shuffled = [...allFields].sort(() => Math.random() - 0.5);
+  // Fisher-Yates shuffle algorithm for uniform distribution
+  const shuffled = [...allFields];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
   return shuffled.slice(0, count);
 }
 
@@ -2725,6 +2740,9 @@ function generateProfile() {
 
   // 调用API提取画像
   extractProfileFromAPI().then(profile => {
+    // Clear loading interval when API returns
+    clearInterval(stepInterval);
+    
     let userType, userDepth, dimensions, keywords, traits;
 
     if (profile && profile.dimensions) {
@@ -2845,7 +2863,9 @@ function renderRadarChart(dimensions) {
   for (let i = 0; i < n; i++) {
     const [name, score] = dims[i];
     const angle = i * angleStep - Math.PI / 2;
-    const r = maxR * (score / 10);
+    // Clamp score to valid range 0-10
+    const clampedScore = Math.max(0, Math.min(10, score));
+    const r = maxR * (clampedScore / 10);
     const x = cx + r * Math.cos(angle);
     const y = cy + r * Math.sin(angle);
     dataPoints += `${x},${y} `;
@@ -3256,12 +3276,49 @@ function saveApiKeyFromError() {
   localStorage.setItem('parallax_api_key', key);
   input.value = '';
   hideApiError();
-  addHomeMessage('API Key 已更新！', false);
+  // Check if function exists before calling
+  if (typeof addHomeMessage === 'function') {
+    addHomeMessage('API Key 已更新！', false);
+  }
 }
 
 // ========== About Modal ==========
 function showAbout() {
   document.getElementById('aboutOverlay').classList.add('show');
+}
+
+// ========== Toast Notification ==========
+function showToast(message, type = 'info') {
+  // Create toast element
+  const toast = document.createElement('div');
+  toast.className = 'toast-notification';
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s;
+    ${type === 'error' ? 'background: rgba(251, 113, 133, 0.9);' : 'background: rgba(34, 211, 238, 0.9);'}
+    color: white;
+    max-width: 90%;
+    text-align: center;
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  // Show toast
+  setTimeout(() => { toast.style.opacity = '1'; }, 10);
+  
+  // Hide and remove after 3 seconds
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => { toast.remove(); }, 300);
+  }, 3000);
 }
 
 function hideAbout(event) {
@@ -3513,6 +3570,8 @@ function saveToLocalStorage() {
     localStorage.setItem(key, JSON.stringify(dataToSave));
   } catch (e) {
     console.warn('保存到localStorage失败:', e);
+    // Show user feedback for save failure
+    showToast('数据保存失败，可能是浏览器存储空间已满', 'error');
   }
 }
 
@@ -3608,38 +3667,10 @@ function fixTruncatedJson(jsonStr) {
     fixed += ']';
   }
 
-  const lastQuoteIdx = fixed.lastIndexOf('"');
-  if (lastQuoteIdx > 0 && fixed[lastQuoteIdx - 1] !== '\\') {
-    const afterLastQuote = fixed.substring(lastQuoteIdx + 1);
-    if (afterLastQuote.trim() === '' || afterLastQuote.trim() === '{' || afterLastQuote.trim() === '[') {
-    } else {
-      const contentBeforeLastQuote = fixed.substring(0, lastQuoteIdx);
-      const lastColonIdx = contentBeforeLastQuote.lastIndexOf(':');
-      if (lastColonIdx > 0) {
-        const betweenColonAndQuote = contentBeforeLastQuote.substring(lastColonIdx + 1).trim();
-        if (betweenColonAndQuote.startsWith('"')) {
-          let quoteCount = 0;
-          let escaped = false;
-          for (let i = lastColonIdx + 1; i < contentBeforeLastQuote.length; i++) {
-            const char = contentBeforeLastQuote[i];
-            if (escaped) {
-              escaped = false;
-              continue;
-            }
-            if (char === '\\') {
-              escaped = true;
-              continue;
-            }
-            if (char === '"') {
-              quoteCount++;
-            }
-          }
-          if (quoteCount % 2 === 1) {
-            fixed = contentBeforeLastQuote + '"' + afterLastQuote;
-          }
-        }
-      }
-    }
+  // Fix unclosed quotes
+  const quoteCount = (fixed.match(/"/g) || []).length;
+  if (quoteCount % 2 !== 0) {
+    fixed += '"';
   }
 
   return fixed;
