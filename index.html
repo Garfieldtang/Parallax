@@ -1932,6 +1932,25 @@ html, body {
         </div>
       </div>
     </div>
+
+    <!-- API Error Modal -->
+    <div class="about-overlay" id="apiErrorOverlay" onclick="hideApiError(event)">
+      <div class="about-content" onclick="event.stopPropagation()" style="max-width:480px;">
+        <div class="about-header">
+          <h2 class="about-title" style="color:var(--glow-rose);">API 错误</h2>
+          <button class="about-close" onclick="hideApiError()">✕</button>
+        </div>
+        <div class="about-body">
+          <div id="apiErrorTitle" style="font-size:18px;font-weight:600;color:var(--text-primary);text-align:center;margin-bottom:12px;"></div>
+          <div id="apiErrorDesc" style="font-size:14px;color:var(--text-secondary);text-align:center;margin-bottom:20px;line-height:1.6;"></div>
+          <div style="font-size:12px;color:var(--text-tertiary);margin-bottom:6px;text-align:center;">请重新配置 API Key</div>
+          <div style="display:flex;gap:8px;">
+            <input type="password" id="apiErrorInput" class="home-chat-input" placeholder="输入 DeepSeek API Key..." style="flex:1;font-size:12px;" onkeydown="if(event.key==='Enter'){saveApiKeyFromError();}">
+            <button class="home-chat-send" onclick="saveApiKeyFromError()" style="padding:8px 14px;font-size:13px;">保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1971,7 +1990,7 @@ let DEEPSEEK_API_KEY = ['sk', '-b0b6dc1759634e91bbff11af739fbf35'].join('');
 
 async function callDeepSeekAPI(prompt, systemPrompt = '') {
   if (!DEEPSEEK_API_KEY) {
-    console.warn('DeepSeek API Key 未配置');
+    showApiError('未配置', 'API Key 为空，请配置后重试');
     return null;
   }
   try {
@@ -1991,11 +2010,23 @@ async function callDeepSeekAPI(prompt, systemPrompt = '') {
         max_tokens: 2000
       })
     });
-    if (!response.ok) throw new Error(`API Error: ${response.status}`);
+    if (!response.ok) {
+      if (response.status === 401) {
+        showApiError('认证失败', 'API Key 无效，请检查后重新配置');
+      } else if (response.status === 402) {
+        showApiError('余额不足', 'API 余额不足，请充值或更换 API Key');
+      } else if (response.status === 403) {
+        showApiError('权限不足', 'API Key 权限不足');
+      } else {
+        showApiError('调用失败', `API 返回错误: ${response.status}`);
+      }
+      return null;
+    }
     const data = await response.json();
     return data.choices[0].message.content;
   } catch (error) {
     console.error('DeepSeek API 调用失败:', error);
+    showApiError('网络错误', '网络连接失败，请稍后重试');
     return null;
   }
 }
@@ -3178,6 +3209,28 @@ function saveApiKey() {
   input.value = '';
   toggleApiConfig();
   addHomeMessage('API Key 已保存！', false);
+}
+
+function showApiError(title, desc) {
+  document.getElementById('apiErrorTitle').textContent = title;
+  document.getElementById('apiErrorDesc').textContent = desc;
+  document.getElementById('apiErrorOverlay').classList.add('show');
+}
+
+function hideApiError(event) {
+  if (event && event.target !== document.getElementById('apiErrorOverlay')) return;
+  document.getElementById('apiErrorOverlay').classList.remove('show');
+}
+
+function saveApiKeyFromError() {
+  const input = document.getElementById('apiErrorInput');
+  const key = input.value.trim();
+  if (!key) return;
+  DEEPSEEK_API_KEY = key;
+  localStorage.setItem('parallax_api_key', key);
+  input.value = '';
+  hideApiError();
+  addHomeMessage('API Key 已更新！', false);
 }
 
 // ========== About Modal ==========
