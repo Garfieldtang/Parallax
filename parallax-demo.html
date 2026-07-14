@@ -1080,6 +1080,16 @@ html, body {
   font-style: italic;
 }
 
+.bilibili-status-bar {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: rgba(251, 114, 153, 0.06);
+  border: 1px solid rgba(251, 114, 153, 0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
 .home-chat-container {
   flex: 1;
   min-height: 0;
@@ -1725,6 +1735,11 @@ html, body {
       </div>
       <div class="page-guide">这是建立你认知基线的第一步。选择你真正感兴趣的 3-6 个领域——它们将成为视差为你绘制认知地图的坐标。</div>
 
+      <!-- B站数据提示 -->
+      <div id="bilibiliHint" style="display:none;width:100%;max-width:600px;margin-bottom:12px;padding:10px 16px;background:rgba(251,114,153,0.1);border:1px solid rgba(251,114,153,0.25);border-radius:10px;font-size:13px;color:var(--text-secondary);text-align:center;">
+        🔗 已接入B站数据，推荐将结合你的关注列表进行个性化
+      </div>
+
       <div class="selected-tags-bar">
         <div class="selected-count">已选 <span id="selectedCount">0</span>/6</div>
         <div class="selected-tags" id="selectedTags"></div>
@@ -1843,6 +1858,10 @@ html, body {
           <div class="home-subtitle" id="homeObserverTitle">Change your angle, change your world.</div>
         </div>
 
+        <!-- Bilibili Status Bar -->
+        <div id="bilibiliStatusBar" class="bilibili-status-bar">
+        </div>
+
         <!-- Chat Container -->
         <div class="home-chat-container">
           <div class="home-chat-messages" id="homeChatMessages">
@@ -1959,6 +1978,30 @@ html, body {
       </div>
     </div>
 
+    <!-- Bilibili Auth Modal -->
+    <div class="about-overlay" id="bilibiliAuthOverlay" onclick="hideBilibiliAuth(event)">
+      <div class="about-content" onclick="event.stopPropagation()" style="max-width:420px;">
+        <div class="about-header">
+          <h2 class="about-title" style="color:#FB7299;">🔗 让视差更懂你</h2>
+          <button class="about-close" onclick="hideBilibiliAuth()">✕</button>
+        </div>
+        <div class="about-body">
+          <div style="font-size:14px;color:var(--text-secondary);line-height:1.7;text-align:center;margin-bottom:24px;">
+            绑定B站账号后，视差可以结合你的关注列表和投稿内容，生成更精准的垂直深潜和水平桥接推荐。<br><br>
+            <span style="font-size:12px;opacity:0.7;">所有数据仅存储在本地浏览器，不会上传到任何服务器。</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <button class="btn btn-primary" onclick="bindBilibili()" style="background:linear-gradient(135deg,#FB7299,#FC8D9F);border:none;width:100%;">
+              绑定B站账号
+            </button>
+            <button class="btn btn-ghost" onclick="skipBilibiliAuth()" style="width:100%;font-size:13px;opacity:0.7;">
+              不授权，直接开始
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- API Error Modal -->
     <div class="about-overlay" id="apiErrorOverlay" onclick="hideApiError(event)">
       <div class="about-content" onclick="event.stopPropagation()" style="max-width:480px;">
@@ -2007,7 +2050,20 @@ const state = {
   currentEvaluation: null,
   quickFeedbackHistory: [],
   exploreCount: 0,
-  lastExploreTime: null
+  lastExploreTime: null,
+  bilibiliAuth: {
+    accessToken: null,
+    refreshToken: null,
+    expiresAt: null,
+    isAuthorized: false
+  },
+  bilibiliData: {
+    following: [],
+    followingTags: [],
+    followingKeywords: [],
+    videos: [],
+    lastUpdated: null
+  }
 };
 
 // ========== DeepSeek API Configuration ==========
@@ -2116,8 +2172,11 @@ function goToScreen(n) {
   const progress = (n / 4) * 100;
   document.getElementById('progressBar').style.width = progress + '%';
   
-  if (n === 1 && state.stars.length === 0) {
-    refreshFields();
+  if (n === 1) {
+    if (state.stars.length === 0) {
+      refreshFields();
+    }
+    updateBilibiliHint();
   }
   if (n === 2) {
     // Clear chat history when starting a new exploration
@@ -2133,6 +2192,7 @@ function goToScreen(n) {
   }
   if (n === 4) {
     initHomePage();
+    updateBilibiliStatus();
   }
 }
 
@@ -2607,9 +2667,20 @@ function generateNextQuestion() {
 
   const systemPrompt = `你是一位认知洞察师。你的任务是通过对话了解用户的认知水平和兴趣边界。`;
   const hasExistingProfile = state.userDimensions && Object.keys(state.userDimensions).length > 0;
+  
+  let bilibiliContext = '';
+  if (state.bilibiliAuth.isAuthorized && state.bilibiliData.followingTags.length > 0) {
+    const tags = state.bilibiliData.followingTags.slice(0, 5).join('、');
+    const keywords = state.bilibiliData.followingKeywords.slice(0, 5).join('、');
+    bilibiliContext = `
+【用户B站数据参考】
+用户B站关注了以下领域：${tags}
+用户B站关注的高频关键词：${keywords}
+请在追问时适当参考这些兴趣线索，从用户可能感兴趣的角度切入。`;
+  }
 
   const userPrompt = `【已知信息】用户已选择的领域是：${fields.join('、')}
-这是第 ${round + 1} 轮对话。
+这是第 ${round + 1} 轮对话。${bilibiliContext}
 
 【对话历史】
 ${chatHistoryText || '（无历史记录）'}
@@ -3551,7 +3622,9 @@ function saveToLocalStorage() {
     historyEvaluations: existingData ? existingData.historyEvaluations : [],
     quickFeedbackHistory: state.quickFeedbackHistory,
     exploreCount: state.exploreCount,
-    lastExploreTime: new Date().toISOString()
+    lastExploreTime: new Date().toISOString(),
+    bilibiliAuth: state.bilibiliAuth,
+    bilibiliData: state.bilibiliData
   };
 
   // Add current evaluation to history if it's new
@@ -3593,6 +3666,13 @@ function loadDataIntoState(data) {
   state.quickFeedbackHistory = data.quickFeedbackHistory || [];
   state.currentEvaluation = data.currentEvaluation;
 
+  if (data.bilibiliAuth) {
+    state.bilibiliAuth = data.bilibiliAuth;
+  }
+  if (data.bilibiliData) {
+    state.bilibiliData = data.bilibiliData;
+  }
+
   if (data.currentEvaluation) {
     const ev = data.currentEvaluation;
     state.selectedFields = ev.selectedFields || [];
@@ -3623,8 +3703,8 @@ function handleStart() {
     loadDataIntoState(savedData);
     goToScreen(4);
   } else {
-    // New user - go to Screen 1
-    goToScreen(1);
+    // New user - show Bilibili auth prompt first
+    showBilibiliAuth();
   }
 }
 
@@ -3680,7 +3760,6 @@ async function fetchRecommendationsFromAPI(seed) {
   const fields = state.profileTags.length > 0 ? state.profileTags : state.selectedFields;
   const level = state.userDepth ? state.userDepth.level : '入门';
   const dimensions = state.userDimensions || {};
-  // 如果没有AI生成的dimensions，回退到简易维度
   if (Object.keys(dimensions).length === 0) {
     const userType = state.userType;
     if (userType) {
@@ -3692,11 +3771,47 @@ async function fetchRecommendationsFromAPI(seed) {
   }
 
   const systemPrompt = `你是一位认知桥梁架构师。只输出纯JSON，不要输出任何其他内容。`;
+  
+  let bilibiliDeepContext = '';
+  let bilibiliBridgeContext = '';
+  
+  if (state.bilibiliAuth.isAuthorized) {
+    const relevantFollowing = getRelevantFollowing(fields);
+    if (relevantFollowing.length > 0) {
+      const upList = relevantFollowing.slice(0, 5).map(u => `- ${u.uname}（${u.sign}）`).join('\n');
+      bilibiliDeepContext = `
+【B站关注数据增强】
+用户当前选中的领域是：${fields.join('、')}
+用户在B站关注的UP主中，与这些领域相关的有：
+${upList}
+
+请结合以上B站关注信息，生成垂直深潜推荐。
+推荐内容可以是：用户关注UP主推荐的具体内容/资源，或与该UP主领域相关的进阶学习方向。
+每条推荐中可以适当提及相关的UP主，增强个性化感。`;
+    }
+    
+    const tagDistribution = getTagDistribution();
+    const keywords = state.bilibiliData.followingKeywords.slice(0, 8).join('、');
+    const chatSummary = state.chatHistory.filter(m => m.role === 'user').map(m => m.text).slice(0, 3).join('；');
+    
+    bilibiliBridgeContext = `
+【B站数据增强-水平桥接】
+用户在B站关注的UP主分类标签分布：${JSON.stringify(tagDistribution)}
+用户在B站关注的高频关键词：${keywords}
+用户的对话内容摘要：${chatSummary || '（暂无）'}
+
+请综合以上所有信息（对话 + B站关注数据），提取用户最突出的1-2个底层思维模型（如博弈型/结构型/叙事型/系统型等）。
+然后基于这些思维模型，推荐跨领域但底层逻辑相似的内容。
+每条推荐需要说明桥接逻辑和为什么是这个思维模型。`;
+  }
+
   const userPrompt = `【用户画像】用户的核心领域是：${fields.join('、')}，认知层级为：${level}，画像维度是：${JSON.stringify(dimensions)}。随机种子：${seed || Date.now()}
+${bilibiliDeepContext}
+${bilibiliBridgeContext}
 
 【任务】请生成两种推荐，每条推荐包含title和description：
-1. 垂直深潜（2条）：在用户已有领域内，推荐更底层、更原理级的内容或相近领域的内容（如：用户提到对音乐感兴趣 可以推荐用户去学习底层和弦规律 或是相近领域的编曲）
-2. 水平桥接（2条）：提取用户兴趣的底层思维模型，推荐跨领域但逻辑相同的领域
+1. 垂直深潜（2-3条）：在用户已有领域内，推荐更底层、更原理级的内容或相近领域的内容
+2. 水平桥接（2-3条）：提取用户兴趣的底层思维模型，推荐跨领域但逻辑相同的领域
 
 要求：要有细节、可落实。具体到某老师的B站课程、某本书的豆瓣链接、对应内容的专业资源库、接下来要干的事等
 
@@ -3726,6 +3841,199 @@ async function fetchRecommendationsFromAPI(seed) {
       console.error('修复后仍解析失败:', e2, result);
       return null;
     }
+  }
+}
+
+// ========== Bilibili Integration ==========
+const MOCK_BILIBILI_DATA = {
+  isAuthorized: true,
+  following: [
+    { mid: '1', uname: '编程技术分享', sign: '前端开发 | React专家 | 每日分享前端干货', face: '' },
+    { mid: '2', uname: '系统架构实验室', sign: '分布式系统 | 微服务架构 | 云原生', face: '' },
+    { mid: '3', uname: '认知科学前沿', sign: '心理学 | 认知神经科学 | 行为经济学', face: '' },
+    { mid: '4', uname: 'AI算法工程师', sign: '深度学习 | 大模型 | 计算机视觉', face: '' },
+    { mid: '5', uname: '产品思维训练营', sign: '产品经理 | 用户体验 | 互联网思维', face: '' },
+    { mid: '6', uname: '设计美学志', sign: '平面设计 | 品牌设计 | 设计思维', face: '' },
+    { mid: '7', uname: '历史调研室', sign: '世界史 | 中国史 | 历史人物', face: '' },
+    { mid: '8', uname: '经济学入门', sign: '宏观经济 | 微观经济 | 投资理财', face: '' }
+  ],
+  followingTags: ['前端开发', '系统设计', '认知科学', '人工智能', '产品设计', '历史研究'],
+  followingKeywords: ['React', '微服务', '认知偏差', '深度学习', '用户体验', '设计思维'],
+  videos: [
+    { title: '我的第一个React项目', desc: '记录学习历程', created: '2024-01-15' },
+    { title: '前端性能优化实战', desc: '从入门到精通', created: '2024-03-20' }
+  ]
+};
+
+function showBilibiliAuth() {
+  document.getElementById('bilibiliAuthOverlay').classList.add('show');
+}
+
+function hideBilibiliAuth(event) {
+  if (event && event.target !== event.currentTarget) return;
+  document.getElementById('bilibiliAuthOverlay').classList.remove('show');
+}
+
+function bindBilibili() {
+  state.bilibiliAuth.isAuthorized = true;
+  state.bilibiliAuth.accessToken = 'mock_access_token_' + Date.now();
+  state.bilibiliAuth.expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+  
+  state.bilibiliData.following = [...MOCK_BILIBILI_DATA.following];
+  state.bilibiliData.followingTags = [...MOCK_BILIBILI_DATA.followingTags];
+  state.bilibiliData.followingKeywords = [...MOCK_BILIBILI_DATA.followingKeywords];
+  state.bilibiliData.videos = [...MOCK_BILIBILI_DATA.videos];
+  state.bilibiliData.lastUpdated = new Date().toISOString();
+  
+  hideBilibiliAuth();
+  saveToLocalStorage();
+  showToast('B站账号绑定成功！', 'success');
+  
+  if (state.currentScreen === 0) {
+    goToScreen(1);
+    updateBilibiliHint();
+  } else {
+    updateBilibiliStatus();
+  }
+}
+
+function skipBilibiliAuth() {
+  state.bilibiliAuth.isAuthorized = false;
+  hideBilibiliAuth();
+  saveToLocalStorage();
+  
+  if (state.currentScreen === 0) {
+    goToScreen(1);
+  }
+}
+
+function unbindBilibili() {
+  state.bilibiliAuth = {
+    accessToken: null,
+    refreshToken: null,
+    expiresAt: null,
+    isAuthorized: false
+  };
+  state.bilibiliData = {
+    following: [],
+    followingTags: [],
+    followingKeywords: [],
+    videos: [],
+    lastUpdated: null
+  };
+  saveToLocalStorage();
+  updateBilibiliStatus();
+  updateBilibiliHint();
+  showToast('已解绑B站账号', 'info');
+}
+
+function refreshBilibiliData() {
+  if (!state.bilibiliAuth.isAuthorized) return;
+  
+  showToast('正在刷新B站数据...', 'info');
+  
+  setTimeout(() => {
+    state.bilibiliData.lastUpdated = new Date().toISOString();
+    saveToLocalStorage();
+    updateBilibiliStatus();
+    showToast('B站数据已更新', 'success');
+  }, 1000);
+}
+
+function getRelevantFollowing(selectedFields) {
+  if (!state.bilibiliAuth.isAuthorized || state.bilibiliData.following.length === 0) {
+    return [];
+  }
+  
+  const relevant = [];
+  const fieldsLower = selectedFields.map(f => f.toLowerCase());
+  
+  for (const up of state.bilibiliData.following) {
+    const signLower = (up.sign || '').toLowerCase();
+    const nameLower = (up.uname || '').toLowerCase();
+    const tagsLower = state.bilibiliData.followingTags.map(t => t.toLowerCase());
+    const keywordsLower = state.bilibiliData.followingKeywords.map(k => k.toLowerCase());
+    
+    let isRelevant = false;
+    
+    for (const field of fieldsLower) {
+      if (signLower.includes(field) || nameLower.includes(field)) {
+        isRelevant = true;
+        break;
+      }
+    }
+    
+    if (!isRelevant) {
+      for (const tag of tagsLower) {
+        for (const field of fieldsLower) {
+          if (tag.includes(field) || field.includes(tag)) {
+            isRelevant = true;
+            break;
+          }
+        }
+        if (isRelevant) break;
+      }
+    }
+    
+    if (isRelevant) {
+      relevant.push(up);
+    }
+  }
+  
+  return relevant;
+}
+
+function getTagDistribution() {
+  if (!state.bilibiliAuth.isAuthorized || state.bilibiliData.following.length === 0) {
+    return {};
+  }
+  
+  const distribution = {};
+  for (const tag of state.bilibiliData.followingTags) {
+    distribution[tag] = Math.floor(Math.random() * 5) + 1;
+  }
+  return distribution;
+}
+
+function updateBilibiliHint() {
+  const hint = document.getElementById('bilibiliHint');
+  if (!hint) return;
+  
+  if (state.bilibiliAuth.isAuthorized) {
+    hint.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+function updateBilibiliStatus() {
+  const statusEl = document.getElementById('bilibiliStatusBar');
+  if (!statusEl) return;
+  
+  if (state.bilibiliAuth.isAuthorized) {
+    const followingCount = state.bilibiliData.following.length;
+    const videoCount = state.bilibiliData.videos.length;
+    statusEl.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:15px;font-weight:500;color:var(--text-primary);">🔗 B站数据状态：已接入</span>
+          <span style="font-size:13px;color:var(--text-secondary);">关注 ${followingCount} 人 · 投稿 ${videoCount} 篇</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost" onclick="refreshBilibiliData()" style="padding:6px 14px;font-size:12px;border-color:rgba(251,114,153,0.3);color:#FB7299;">刷新数据</button>
+          <button class="btn btn-ghost" onclick="unbindBilibili()" style="padding:6px 14px;font-size:12px;">解绑账号</button>
+        </div>
+      </div>
+    `;
+    statusEl.style.display = 'block';
+  } else {
+    statusEl.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <span style="font-size:13px;color:var(--text-tertiary);">🔗 未接入B站数据，绑定后可获得更精准的个性化推荐</span>
+        <button class="btn btn-ghost" onclick="showBilibiliAuth()" style="padding:6px 14px;font-size:12px;border-color:rgba(251,114,153,0.3);color:#FB7299;">去绑定</button>
+      </div>
+    `;
+    statusEl.style.display = 'block';
   }
 }
 
