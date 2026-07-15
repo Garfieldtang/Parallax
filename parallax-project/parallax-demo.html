@@ -210,14 +210,15 @@
     }
     
     .platform-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+      width: 50px;
+      height: 65px;
+      border-radius: 10px;
       background: rgba(255, 255, 255, 0.05);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 20px;
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
@@ -228,12 +229,200 @@
       transform: translateY(-3px);
     }
     
+    .platform-icon.locked {
+      filter: grayscale(1);
+      opacity: 0.6;
+    }
+    
     .platform-icon.locked::after {
       content: '🔒';
       position: absolute;
       bottom: -4px;
       right: -4px;
       font-size: 10px;
+    }
+    
+    .platform-icon span {
+      font-size: 18px;
+    }
+    
+    .platform-name {
+      font-size: 11px;
+      opacity: 0.6;
+      margin-top: 4px;
+      text-align: center;
+    }
+    
+    .story-screen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #0A0A0A 0%, #1A1A2E 100%);
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+    
+    .story-screen.active {
+      display: flex;
+    }
+    
+    .story-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    .story-star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: storyTwinkle 3s ease-in-out infinite;
+    }
+    
+    @keyframes storyTwinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    
+    .story-content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 480px;
+    }
+    
+    .story-character {
+      width: 200px;
+      height: 280px;
+      margin-bottom: 30px;
+      position: relative;
+      animation: float 2.5s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    
+    .story-character img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 16px;
+    }
+    
+    .story-bubble {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      min-height: 100px;
+      margin-bottom: 30px;
+      position: relative;
+    }
+    
+    .story-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 10px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .story-text {
+      font-size: 16px;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.9);
+      text-align: center;
+      min-height: 60px;
+    }
+    
+    .story-text span {
+      opacity: 0;
+      transition: opacity 0.1s ease;
+    }
+    
+    .story-text span.visible {
+      opacity: 1;
+    }
+    
+    .story-actions {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .story-btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+    }
+    
+    .story-btn-primary {
+      background: linear-gradient(135deg, #FB7299, #FC8D9F);
+      color: white;
+      font-weight: 600;
+    }
+    
+    .story-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(251, 114, 153, 0.4);
+    }
+    
+    .story-btn-secondary {
+      background: transparent;
+      color: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .story-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .story-indicator {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .story-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .story-dot.active {
+      background: #FB7299;
+      width: 24px;
+      border-radius: 4px;
     }
     
     .feedback-btn {
@@ -353,48 +542,53 @@
 <body>
   <div class="stars-container" id="starsContainer"></div>
 
-  <div class="screen" id="screenMinus1">
-    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
-      <div class="parallax-character" style="margin-bottom: 40px;">
-        <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
-          <circle cx="80" cy="35" r="20" stroke="#00D4FF" stroke-width="1.5" />
-          <ellipse cx="80" cy="30" rx="18" ry="10" stroke="#00D4FF" stroke-width="1.5" />
-          <line x1="62" y1="30" x2="45" y2="35" stroke="#00D4FF" stroke-width="1.5" />
-          <line x1="98" y1="30" x2="115" y2="35" stroke="#00D4FF" stroke-width="1.5" />
-          <circle cx="72" cy="35" r="4" stroke="#00D4FF" stroke-width="1.5" />
-          <circle cx="88" cy="35" r="4" stroke="#00D4FF" stroke-width="1.5" />
-          <line x1="70" y1="33" x2="74" y2="37" stroke="#00D4FF" stroke-width="1" />
-          <line x1="86" y1="33" x2="90" y2="37" stroke="#00D4FF" stroke-width="1" />
-          <ellipse cx="80" cy="45" rx="3" ry="2" stroke="#00D4FF" stroke-width="1" />
-          <line x1="50" y1="50" x2="45" y2="60" stroke="#00D4FF" stroke-width="1.5" />
-          <line x1="110" y1="50" x2="115" y2="60" stroke="#00D4FF" stroke-width="1.5" />
-          <path d="M60 55 Q80 80 100 55" stroke="#00D4FF" stroke-width="1.5" fill="none" />
-          <ellipse cx="80" cy="85" rx="25" ry="30" stroke="#00D4FF" stroke-width="1.5" />
-          <path d="M55 85 L50 70 Q70 65 80 70" stroke="#00D4FF" stroke-width="1.5" fill="none" />
-          <path d="M105 85 L110 70 Q90 65 80 70" stroke="#00D4FF" stroke-width="1.5" fill="none" />
-          <line x1="60" y1="95" x2="55" y2="95" stroke="#00D4FF" stroke-width="1" />
-          <line x1="100" y1="95" x2="105" y2="95" stroke="#00D4FF" stroke-width="1" />
-          <line x1="55" y1="85" x2="35" y2="100" stroke="#00D4FF" stroke-width="1.5" />
-          <line x1="105" y1="85" x2="125" y2="100" stroke="#00D4FF" stroke-width="1.5" />
-          <line x1="55" y1="115" x2="45" y2="140" stroke="#00D4FF" stroke-width="1.5" />
-          <line x1="105" y1="115" x2="115" y2="140" stroke="#00D4FF" stroke-width="1.5" />
-          <ellipse cx="45" cy="145" rx="8" ry="5" stroke="#00D4FF" stroke-width="1.5" />
-          <ellipse cx="115" cy="145" rx="8" ry="5" stroke="#00D4FF" stroke-width="1.5" />
-          <rect x="20" y="120" width="20" height="25" rx="3" stroke="#00D4FF" stroke-width="1" opacity="0.3" />
-          <rect x="120" y="125" width="15" height="20" rx="2" stroke="#00D4FF" stroke-width="1" opacity="0.3" />
-          <circle cx="140" cy="110" r="8" stroke="#00D4FF" stroke-width="1" opacity="0.3" />
+  <div class="story-screen" id="storyScreen">
+    <div class="story-bg" id="storyBg"></div>
+    <div class="story-content">
+      <div class="story-character">
+        <svg width="200" height="280" viewBox="0 0 200 280" fill="none">
+          <ellipse cx="100" cy="270" rx="60" ry="8" fill="rgba(255,255,255,0.1)"/>
+          <rect x="70" y="150" width="60" height="100" rx="10" fill="#4A5568"/>
+          <rect x="65" y="140" width="70" height="30" rx="15" fill="#4A5568"/>
+          <path d="M65 155 L60 165 L65 170 Z" fill="#4A5568"/>
+          <path d="M135 155 L140 165 L135 170 Z" fill="#4A5568"/>
+          <rect x="75" y="165" width="50" height="80" rx="5" fill="#2D3748"/>
+          <circle cx="100" cy="80" r="40" fill="#FFE4E1"/>
+          <circle cx="100" cy="75" r="30" fill="#FFE4E1"/>
+          <ellipse cx="100" cy="70" rx="25" ry="18" fill="#FFE4E1"/>
+          <circle cx="85" cy="75" r="8" fill="#2D3748"/>
+          <circle cx="115" cy="75" r="8" fill="#2D3748"/>
+          <circle cx="87" cy="73" r="2" fill="white"/>
+          <circle cx="117" cy="73" r="2" fill="white"/>
+          <rect x="75" y="68" width="20" height="14" rx="3" fill="#2D3748" opacity="0.8"/>
+          <rect x="105" y="68" width="20" height="14" rx="3" fill="#2D3748" opacity="0.8"/>
+          <circle cx="100" cy="90" r="4" fill="#FFB6C1"/>
+          <path d="M90 100 Q100 110 110 100" stroke="#2D3748" stroke-width="2" fill="none"/>
+          <path d="M60 55 Q60 30 80 35" stroke="#1A202C" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <path d="M70 50 Q75 25 95 30" stroke="#1A202C" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M130 50 Q125 25 105 30" stroke="#1A202C" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M140 55 Q140 30 120 35" stroke="#1A202C" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <rect x="55" y="160" width="15" height="45" rx="7" fill="#4A5568"/>
+          <rect x="130" y="160" width="15" height="45" rx="7" fill="#4A5568"/>
+          <rect x="60" y="205" width="15" height="50" rx="7" fill="#4A5568"/>
+          <rect x="125" y="205" width="15" height="50" rx="7" fill="#4A5568"/>
+          <circle cx="100" cy="140" r="3" fill="#FB7299"/>
+          <circle cx="95" cy="138" r="1" fill="#FB7299"/>
+          <circle cx="105" cy="138" r="1" fill="#FB7299"/>
         </svg>
       </div>
       
-      <div class="glass-card" style="max-width: 420px; margin-bottom: 20px;">
-        <div id="storyText" class="typing-cursor" style="font-size: 16px; line-height: 1.8; min-height: 80px;"></div>
+      <div class="story-indicator">
+        <div class="story-dot active" id="storyDot1"></div>
+        <div class="story-dot" id="storyDot2"></div>
+        <div class="story-dot" id="storyDot3"></div>
       </div>
       
-      <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
-        <button class="btn" id="storySkip">跳过，直接开始</button>
-        <button class="btn btn-primary" id="storyContinue" style="display: none;">继续 →</button>
-        <button class="btn btn-primary" id="storyStart" style="display: none;">开始吧！</button>
+      <div class="story-bubble">
+        <div class="story-text" id="storyText"></div>
       </div>
+      
+      <div class="story-actions" id="storyActions"></div>
     </div>
   </div>
 
@@ -417,7 +611,7 @@
           </svg>
         </div>
         <div class="glass-card" style="flex: 1; max-width: 360px;">
-          <p style="font-size: 15px;">你好，我是小差。先告诉我，你最近在研究什么？</p>
+          <p style="font-size: 15px;">授权这些平台，能让我更懂你哦~</p>
         </div>
       </div>
       
@@ -428,30 +622,37 @@
         </div>
         
         <div style="margin-top: 30px; text-align: center;">
-          <p style="font-size: 12px; opacity: 0.5; margin-bottom: 16px;">🔗 授权后，视差可结合你的关注列表生成更精准的推荐。</p>
-          <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+          <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px;">
             <div class="platform-icon locked" onclick="showPlatformComingSoon('B站')" title="B站">
               <span>📺</span>
+              <div class="platform-name">B站</div>
             </div>
             <div class="platform-icon locked" onclick="showPlatformComingSoon('小红书')" title="小红书">
               <span>📕</span>
+              <div class="platform-name">小红书</div>
             </div>
             <div class="platform-icon locked" onclick="showPlatformComingSoon('抖音')" title="抖音">
               <span>🎵</span>
+              <div class="platform-name">抖音</div>
             </div>
             <div class="platform-icon locked" onclick="showPlatformComingSoon('知乎')" title="知乎">
               <span>📖</span>
+              <div class="platform-name">知乎</div>
             </div>
             <div class="platform-icon locked" onclick="showPlatformComingSoon('豆瓣')" title="豆瓣">
               <span>📚</span>
+              <div class="platform-name">豆瓣</div>
             </div>
             <div class="platform-icon locked" onclick="showPlatformComingSoon('微信')" title="微信">
               <span>💬</span>
+              <div class="platform-name">微信</div>
             </div>
             <div class="platform-icon locked" onclick="showPlatformComingSoon('知识库')" title="知识库">
               <span>🧠</span>
+              <div class="platform-name">知识库</div>
             </div>
           </div>
+          <p style="font-size: 12px; opacity: 0.5;">🔗 授权后，视差可结合你的关注列表生成更精准的推荐。</p>
         </div>
       </div>
       
@@ -628,8 +829,9 @@
       loadState();
       createStars();
       
-      if (!state.storySeen) {
-        goToScreen(-1);
+      const storySeen = localStorage.getItem('parallax_story_seen');
+      if (!storySeen) {
+        showStory();
       } else if (state.observerName && state.evaluations.length > 0) {
         goToScreen(3);
       } else if (state.observerName) {
@@ -641,12 +843,136 @@
 
     function goToScreen(screenNum) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      const screenId = screenNum === -1 ? 'screenMinus1' : `screen${screenNum}`;
-      document.getElementById(screenId).classList.add('active');
+      document.getElementById(`screen${screenNum}`).classList.add('active');
       
       if (screenNum === 1) renderFields();
       if (screenNum === 2) startChat();
       if (screenNum === 3) renderMainPage();
+    }
+
+    let currentStoryScene = 0;
+    let typewriterTimeout = null;
+
+    const storyData = [
+      {
+        text: "打开APP → 刷 → 刷 → 刷 → 关掉。但也许……我真的不知道我到底收获了什么。",
+        typewriter: true,
+        buttons: [
+          { text: "继续 →", primary: true, action: 'next' },
+          { text: "跳过，直接开始", primary: false, action: 'skip' }
+        ]
+      },
+      {
+        text: "那些推荐……他们拼命让我待在舒适区里。吸引我的它疯狂推送；我没见过的，它连提都不提。",
+        typewriter: true,
+        buttons: [
+          { text: "继续 →", primary: true, action: 'next' },
+          { text: "跳过，直接开始", primary: false, action: 'skip' }
+        ]
+      },
+      {
+        text: "所以我做了这个工具。不帮你整理收藏夹，不帮你做笔记。只回答一个问题：下一步，去哪？",
+        typewriter: false,
+        buttons: [
+          { text: "试试看？", primary: true, action: 'start' },
+          { text: "跳过，直接开始", primary: false, action: 'skip' }
+        ]
+      }
+    ];
+
+    function showStory() {
+      document.getElementById('storyScreen').classList.add('active');
+      createStoryStars();
+      currentStoryScene = 0;
+      renderStoryScene();
+    }
+
+    function createStoryStars() {
+      const bg = document.getElementById('storyBg');
+      bg.innerHTML = '';
+      for (let i = 0; i < 80; i++) {
+        const star = document.createElement('div');
+        star.className = 'story-star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDelay = Math.random() * 3 + 's';
+        star.style.width = Math.random() * 2 + 1 + 'px';
+        star.style.height = star.style.width;
+        bg.appendChild(star);
+      }
+    }
+
+    function renderStoryScene() {
+      const scene = storyData[currentStoryScene];
+      const textEl = document.getElementById('storyText');
+      const actionsEl = document.getElementById('storyActions');
+      
+      for (let i = 1; i <= 3; i++) {
+        document.getElementById(`storyDot${i}`).classList.toggle('active', i === currentStoryScene + 1);
+      }
+      
+      textEl.innerHTML = '';
+      actionsEl.innerHTML = '';
+      
+      if (scene.typewriter) {
+        typewriterEffect(scene.text);
+      } else {
+        textEl.innerHTML = scene.text;
+      }
+      
+      scene.buttons.forEach(btn => {
+        const button = document.createElement('button');
+        button.className = `story-btn ${btn.primary ? 'story-btn-primary' : 'story-btn-secondary'}`;
+        button.textContent = btn.text;
+        button.onclick = () => handleStoryAction(btn.action);
+        actionsEl.appendChild(button);
+      });
+    }
+
+    function typewriterEffect(text) {
+      const textEl = document.getElementById('storyText');
+      textEl.innerHTML = '';
+      
+      let index = 0;
+      const speed = 30;
+      
+      function type() {
+        if (index < text.length) {
+          const span = document.createElement('span');
+          span.textContent = text[index];
+          span.className = 'visible';
+          textEl.appendChild(span);
+          index++;
+          typewriterTimeout = setTimeout(type, speed);
+        }
+      }
+      
+      type();
+    }
+
+    function handleStoryAction(action) {
+      if (typewriterTimeout) {
+        clearTimeout(typewriterTimeout);
+        typewriterTimeout = null;
+      }
+      
+      localStorage.setItem('parallax_story_seen', 'true');
+      
+      if (action === 'next') {
+        if (currentStoryScene < storyData.length - 1) {
+          currentStoryScene++;
+          renderStoryScene();
+        } else {
+          enterWelcomePage();
+        }
+      } else {
+        enterWelcomePage();
+      }
+    }
+
+    function enterWelcomePage() {
+      document.getElementById('storyScreen').classList.remove('active');
+      goToScreen(0);
     }
 
     function createStars() {
@@ -690,75 +1016,6 @@
       } catch (e) {
         console.error('保存状态失败:', e);
       }
-    }
-
-    let storyTypingInterval = null;
-    function startStory() {
-      state.storyScene = 0;
-      renderStoryScene();
-    }
-
-    function renderStoryScene() {
-      const textElement = document.getElementById('storyText');
-      const continueBtn = document.getElementById('storyContinue');
-      const startBtn = document.getElementById('storyStart');
-      const skipBtn = document.getElementById('storySkip');
-      
-      textElement.innerHTML = '';
-      continueBtn.style.display = 'none';
-      startBtn.style.display = 'none';
-      skipBtn.style.display = 'inline-flex';
-      
-      const scenes = [
-        "我以前是这样的：打开APP → 刷 → 刷 → 刷 → 关掉。然后问自己：我刚才看了什么？答不上来。",
-        "后来我意识到：不是我不够努力。是算法太努力了——拼命让我待在舒适区里。我喜欢的，它拼命给我；我没见过的，它连提都不提。",
-        "所以我做了这个工具。不帮你整理收藏夹，不帮你做笔记。只回答一个问题：你今天刷了这么多，下一步到底该往哪走？"
-      ];
-      
-      if (state.storyScene < 2) {
-        typeWriter(scenes[state.storyScene], () => {
-          continueBtn.style.display = 'inline-flex';
-        });
-      } else {
-        textElement.textContent = scenes[state.storyScene];
-        startBtn.style.display = 'inline-flex';
-        skipBtn.style.display = 'none';
-      }
-    }
-
-    function typeWriter(text, callback) {
-      const element = document.getElementById('storyText');
-      let i = 0;
-      element.innerHTML = '';
-      
-      if (storyTypingInterval) clearInterval(storyTypingInterval);
-      
-      storyTypingInterval = setInterval(() => {
-        if (i < text.length) {
-          element.innerHTML += text.charAt(i);
-          i++;
-        } else {
-          clearInterval(storyTypingInterval);
-          if (callback) callback();
-        }
-      }, 30);
-    }
-
-    function storyContinue() {
-      state.storyScene++;
-      renderStoryScene();
-    }
-
-    function storyStart() {
-      state.storySeen = true;
-      saveState();
-      goToScreen(0);
-    }
-
-    function storySkip() {
-      state.storySeen = true;
-      saveState();
-      goToScreen(0);
     }
 
     function handleStart() {
@@ -1347,10 +1604,6 @@
     function showPlatformComingSoon(name) {
       showToast(`${name}授权功能开发中，未来将支持！`);
     }
-
-    document.getElementById('storyContinue').onclick = storyContinue;
-    document.getElementById('storyStart').onclick = storyStart;
-    document.getElementById('storySkip').onclick = storySkip;
 
     init();
   </script>
