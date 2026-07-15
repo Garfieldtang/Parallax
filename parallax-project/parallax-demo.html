@@ -2521,10 +2521,13 @@ const DEEPSEEK_API_KEY = localStorage.getItem('parallax_deepseek_key') || '';
 
 async function callDeepSeekAPI(prompt, systemPrompt = '') {
   if (!DEEPSEEK_API_KEY) {
-    console.warn('DeepSeek API Key 未配置。请在控制台执行：localStorage.setItem("parallax_deepseek_key", "你的key")');
+    console.warn('DeepSeek API Key 未配置');
     return null;
   }
   try {
+    // 加 30 秒超时，防止网络挂起导致 UI 永久卡死
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
     const response = await fetch(DEEPSEEK_API_URL, {
       method: 'POST',
       headers: {
@@ -2539,13 +2542,28 @@ async function callDeepSeekAPI(prompt, systemPrompt = '') {
         ],
         temperature: 0.7,
         max_tokens: 2000
-      })
+      }),
+      signal: controller.signal
     });
-    if (!response.ok) throw new Error(`API Error: ${response.status}`);
+    clearTimeout(timeoutId);
+    if (!response.ok) {
+      // 区分常见错误码，便于上层给用户更准确的提示
+      const errText = await response.text().catch(() => '');
+      console.error(`DeepSeek API ${response.status}:`, errText);
+      return null;
+    }
     const data = await response.json();
+    if (!data.choices || !data.choices[0]) {
+      console.error('DeepSeek 返回结构异常:', data);
+      return null;
+    }
     return data.choices[0].message.content;
   } catch (error) {
-    console.error('DeepSeek API 调用失败:', error);
+    if (error.name === 'AbortError') {
+      console.error('DeepSeek API 调用超时（30s）');
+    } else {
+      console.error('DeepSeek API 调用失败:', error);
+    }
     return null;
   }
 }
@@ -2820,7 +2838,7 @@ function updateSelectedTags() {
   state.selectedFields.forEach((field, idx) => {
     const tag = document.createElement('div');
     tag.className = 'selected-tag';
-    tag.innerHTML = `${field} <span class="remove" onclick="removeField(${idx})">×</span>`;
+    tag.innerHTML = `${escapeHtml(field)} <span class="remove" onclick="removeField(${idx})">×</span>`;
     container.appendChild(tag);
   });
 
@@ -3050,7 +3068,9 @@ function scrollChatToBottom() {
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
-  return div.innerHTML;
+  // 在浏览器 textContent→innerHTML 基础上补转义单双引号，
+  // 防止字符串拼入 onclick 属性上下文时被破坏或注入
+  return div.innerHTML.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
 }
 
 function handleChatKeydown(e) {
@@ -3343,19 +3363,34 @@ function generateProfile() {
     }
   }, 700);
 
-  // 调用API提取画像
-  extractProfileFromAPI().then(profile => {
+  // 改用 async/await + try/finally，确保 stepInterval 一定被清理
+  (async () => {
+    let profile = null;
+    try {
+      profile = await extractProfileFromAPI();
+    } catch (e) {
+      console.error('extractProfileFromAPI 异常:', e);
+      profile = null;
+    }
+
     let userType, userDepth, dimensions, keywords, traits;
 
     if (profile && profile.dimensions) {
-      dimensions = profile.dimensions;
+      // 校验 dimensions 结构，缺失的维度补默认值，避免雷达图 NaN
+      const DIM_KEYS = ['逻辑分析','感性直觉','系统构建','表达叙事','实证探究','审美创造'];
+      const raw = profile.dimensions || {};
+      dimensions = {};
+      DIM_KEYS.forEach(k => {
+        const v = Number(raw[k]);
+        dimensions[k] = (Number.isFinite(v) && v >= 0 && v <= 10) ? v : 5.0;
+      });
       const typeName = profile.userType || '探索发现型';
       userType = userTypes.find(t => t.type === typeName) || userTypes[4];
       const depthName = profile.depth || '好奇探索者';
       const levelMap = { beginner: '入门', intermediate: '中级', advanced: '高级', expert: '专家' };
       const levelName = levelMap[profile.level] || '入门';
       userDepth = { depth: depthName, level: levelName, desc: '' };
-      keywords = profile.keywords || [];
+      keywords = Array.isArray(profile.keywords) ? profile.keywords : [];
       traits = profile.traits || '';
     } else {
       userType = userTypes[Math.floor(Math.random() * userTypes.length)];
@@ -3394,32 +3429,37 @@ function generateProfile() {
       bridgeRecs: []
     };
 
-    // 渲染画像
-    document.getElementById('profileType').textContent = userType.type;
-    document.getElementById('profileDepth').textContent = `${userDepth.depth} · ${userDepth.level}`;
-    const nameText = document.getElementById('profileNameText');
-    if (nameText) nameText.textContent = `${state.observerName} 的本轮认知画像已完成`;
+    try {
+      // 渲染画像
+      document.getElementById('profileType').textContent = userType.type;
+      document.getElementById('profileDepth').textContent = `${userDepth.depth} · ${userDepth.level}`;
+      const nameText = document.getElementById('profileNameText');
+      if (nameText) nameText.textContent = `${state.observerName} 的本轮认知画像已完成`;
 
-    // 渲染雷达图
-    renderRadarChart(dimensions);
+      // 渲染雷达图
+      renderRadarChart(dimensions);
 
-    // 渲染认知徽章
-    renderBadges(allTags, userDepth.level);
+      // 渲染认知徽章
+      renderBadges(allTags, userDepth.level);
 
-    // 渲染特征描述
-    const traitsEl = document.getElementById('profileTraits');
-    if (traitsEl) traitsEl.textContent = traits;
-
-    clearInterval(stepInterval);
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('s3ResultArea').style.display = 'block';
-    document.getElementById('profileCard').classList.add('show');
+      // 渲染特征描述
+      const traitsEl = document.getElementById('profileTraits');
+      if (traitsEl) traitsEl.textContent = traits;
+    } catch (renderErr) {
+      console.error('画像渲染异常:', renderErr);
+    } finally {
+      // 无论成功失败都清理 stepInterval，避免永久轮询
+      clearInterval(stepInterval);
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('s3ResultArea').style.display = 'block';
+      document.getElementById('profileCard').classList.add('show');
+    }
 
     // 自动生成推荐
     setTimeout(() => {
       generateS3Recommendations();
     }, 600);
-  });
+  })();
 }
 
 function renderRadarChart(dimensions) {
@@ -3570,25 +3610,37 @@ function renderS3Recommendations(recData) {
 }
 
 function linkifyDetail(text) {
-  // 先转义防XSS
-  let s = escapeHtml(text);
-  // 1) 真实网址转链接
-  s = s.replace(/(https?:\/\/[^\s<，。、；"]+)/g, (m) => {
-    const url = m.replace(/&amp;/g, '&');
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-cyan);text-decoration:underline;word-break:break-all;">${m}</a>`;
+  // 修复双重编码：在转义前先用占位符提取 URL 和关键词，转义后再回填
+  const placeholders = [];
+  let work = String(text);
+
+  // 1) 真实网址（扩展排除标点集，避免把中文标点带进 URL）
+  work = work.replace(/https?:\/\/[^\s<，。、；""」》）！？]+/g, (url) => {
+    const i = placeholders.length;
+    placeholders.push(`<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-cyan);text-decoration:underline;word-break:break-all;">${escapeHtml(url)}</a>`);
+    return `\u0000${i}\u0000`;
   });
-  // 2) "B站搜「xxx」" / "B站搜"xxx"" → B站搜索链接
-  s = s.replace(/B站搜[「""]([^」""]+)[」""]/g, (m, kw) => {
+  // 2) "B站搜「xxx」" → B站搜索链接
+  work = work.replace(/B站搜[「""]([^」""]+)[」""]/g, (m, kw) => {
+    const i = placeholders.length;
     const url = 'https://search.bilibili.com/all?keyword=' + encodeURIComponent(kw);
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-cyan);text-decoration:underline;">B站搜「${kw}」</a>`;
+    placeholders.push(`<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-cyan);text-decoration:underline;">B站搜「${escapeHtml(kw)}」</a>`);
+    return `\u0000${i}\u0000`;
   });
   // 3) "豆瓣《xxx》" → 豆瓣搜索链接
-  s = s.replace(/豆瓣《([^》]+)》/g, (m, kw) => {
+  work = work.replace(/豆瓣《([^》]+)》/g, (m, kw) => {
+    const i = placeholders.length;
     const url = 'https://search.douban.com/book/subject_search?search_text=' + encodeURIComponent(kw);
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-cyan);text-decoration:underline;">豆瓣《${kw}》</a>`;
+    placeholders.push(`<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-cyan);text-decoration:underline;">豆瓣《${escapeHtml(kw)}》</a>`);
+    return `\u0000${i}\u0000`;
   });
-  // 4) 换行处理
+
+  // 4) 转义剩余文本
+  let s = escapeHtml(work);
+  // 5) 换行
   s = s.replace(/\n/g, '<br>');
+  // 6) 回填占位符（注意占位符 \u0000索引\u0000 经 escapeHtml 不变）
+  s = s.replace(/\u0000(\d+)\u0000/g, (m, i) => placeholders[+i] || m);
   return s;
 }
 
@@ -3763,7 +3815,7 @@ function updateExploreSelectedTags() {
   (state.exploreSelectedFields || []).forEach((field, idx) => {
     const tag = document.createElement('div');
     tag.className = 'selected-tag';
-    tag.innerHTML = `${field} <span class="remove" onclick="removeExploreField(${idx})">×</span>`;
+    tag.innerHTML = `${escapeHtml(field)} <span class="remove" onclick="removeExploreField(${idx})">×</span>`;
     container.appendChild(tag);
   });
   const countEl = document.getElementById('exploreSelectedCount');
@@ -3932,7 +3984,10 @@ async function generateHomeBridgeRecs() {
       }
     } catch (e) {
       console.error('Bridge rec parse error:', e);
+      bridgeRecs.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-tertiary);font-size:13px;">生成失败，请点击"换一批"重试</div>';
     }
+  } else {
+    bridgeRecs.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-tertiary);font-size:13px;">生成失败，请点击"换一批"重试</div>';
   }
 }
 
