@@ -92,10 +92,16 @@ html, body {
 .glass-card {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 20px;
+  border-radius: 0;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 var(--glass-glow);
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
+  clip-path: polygon(
+    0 8px, 4px 8px, 4px 4px, 8px 4px, 8px 0,
+    calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px,
+    100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%,
+    8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px)
+  );
 }
 
 .btn {
@@ -104,34 +110,41 @@ html, body {
   justify-content: center;
   gap: 8px;
   padding: 14px 32px;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Cubic 11', 'Space Grotesk', sans-serif;
   font-weight: 500;
-  font-size: 15px;
+  font-size: 14px;
   border: none;
-  border-radius: 12px;
+  border-radius: 0;
   cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
   user-select: none;
+  letter-spacing: 0.5px;
+  clip-path: polygon(
+    0 6px, 3px 6px, 3px 3px, 6px 3px, 6px 0,
+    calc(100% - 6px) 0, calc(100% - 6px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 6px, 100% 6px,
+    100% calc(100% - 6px), calc(100% - 3px) calc(100% - 6px), calc(100% - 3px) calc(100% - 3px), calc(100% - 6px) calc(100% - 3px), calc(100% - 6px) 100%,
+    6px 100%, 6px calc(100% - 3px), 3px calc(100% - 3px), 3px calc(100% - 6px), 0 calc(100% - 6px)
+  );
 }
 
 .btn-primary {
   background: linear-gradient(135deg, var(--glow-cyan), var(--glow-violet));
   color: #0A0E17;
   font-weight: 600;
-  box-shadow: 0 4px 20px rgba(34, 211, 238, 0.3);
+  filter: drop-shadow(0 4px 16px rgba(34, 211, 238, 0.3));
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 30px rgba(34, 211, 238, 0.5);
+  filter: drop-shadow(0 6px 24px rgba(34, 211, 238, 0.5));
 }
 
 .btn-primary:disabled {
   opacity: 0.4;
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
+  filter: none;
 }
 
 .btn-secondary {
@@ -192,13 +205,20 @@ html, body {
   padding: 14px 20px;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 12px;
+  border-radius: 0;
   color: var(--text-primary);
-  font-size: 15px;
-  font-family: 'Inter', 'Noto Sans SC', sans-serif;
+  font-size: 14px;
+  font-family: 'Cubic 11', 'Inter', 'Noto Sans SC', sans-serif;
   outline: none;
   text-align: center;
   transition: border-color 0.3s ease;
+  letter-spacing: 0.5px;
+  clip-path: polygon(
+    0 5px, 3px 5px, 3px 3px, 5px 3px, 5px 0,
+    calc(100% - 5px) 0, calc(100% - 5px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 5px, 100% 5px,
+    100% calc(100% - 5px), calc(100% - 3px) calc(100% - 5px), calc(100% - 3px) calc(100% - 3px), calc(100% - 5px) calc(100% - 3px), calc(100% - 5px) 100%,
+    5px 100%, 5px calc(100% - 3px), 3px calc(100% - 3px), 3px calc(100% - 5px), 0 calc(100% - 5px)
+  );
 }
 
 .name-input:focus {
@@ -218,14 +238,15 @@ html, body {
 }
 
 .s1-title {
-  font-family: 'Orbitron', sans-serif;
-  font-size: clamp(24px, 4vw, 32px);
+  font-family: 'Cubic 11', 'Orbitron', sans-serif;
+  font-size: clamp(22px, 4vw, 30px);
   font-weight: 700;
   margin-bottom: 6px;
   background: linear-gradient(135deg, var(--glow-cyan), var(--glow-violet));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
 }
 
 .s1-desc {
@@ -249,6 +270,7 @@ html, body {
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  font-family: 'Cubic 11', 'Space Grotesk', monospace;
 }
 
 .selected-count span {
@@ -268,7 +290,7 @@ html, body {
 
 .field-chip {
   padding: 14px 16px;
-  border-radius: 14px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   cursor: pointer;
@@ -277,12 +299,19 @@ html, body {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-secondary);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Cubic 11', 'Space Grotesk', sans-serif;
   text-align: left;
   user-select: none;
   animation: chipIn 0.3s ease backwards;
+  letter-spacing: 0.5px;
+  clip-path: polygon(
+    0 5px, 3px 5px, 3px 3px, 5px 3px, 5px 0,
+    calc(100% - 5px) 0, calc(100% - 5px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 5px, 100% 5px,
+    100% calc(100% - 5px), calc(100% - 3px) calc(100% - 5px), calc(100% - 3px) calc(100% - 3px), calc(100% - 5px) calc(100% - 3px), calc(100% - 5px) 100%,
+    5px 100%, 5px calc(100% - 3px), 3px calc(100% - 3px), 3px calc(100% - 5px), 0 calc(100% - 5px)
+  );
 }
 
 @keyframes chipIn {
@@ -405,14 +434,15 @@ html, body {
 }
 
 .s2-title {
-  font-family: 'Orbitron', sans-serif;
-  font-size: clamp(22px, 4vw, 32px);
+  font-family: 'Cubic 11', 'Orbitron', sans-serif;
+  font-size: clamp(20px, 4vw, 28px);
   font-weight: 700;
   margin-bottom: 4px;
+  letter-spacing: 1px;
 }
 
 .round-indicator {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Cubic 11', 'Space Grotesk', sans-serif;
   font-size: 13px;
   color: var(--text-tertiary);
   letter-spacing: 0.1em;
@@ -1077,17 +1107,34 @@ html, body {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  background: rgba(10, 14, 23, 0.85);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  border-radius: 10px;
   overflow: hidden;
   backdrop-filter: blur(20px);
+  box-shadow: 0 0 30px rgba(34, 211, 238, 0.08), 0 4px 20px rgba(0,0,0,0.4);
+  position: relative;
+}
+
+/* CMD 风格标题栏 */
+.home-chat-container::before {
+  content: '';
+  display: block;
+  height: 30px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(34, 211, 238, 0.15);
+  background-image:
+    radial-gradient(circle at 14px 15px, #FF5F57 0 4px, transparent 4px),
+    radial-gradient(circle at 32px 15px, #FFBD2E 0 4px, transparent 4px),
+    radial-gradient(circle at 50px 15px, #28CA42 0 4px, transparent 4px);
+  background-repeat: no-repeat;
 }
 
 .home-chat-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -1095,65 +1142,73 @@ html, body {
 
 .home-chat-messages::-webkit-scrollbar { width: 4px; }
 .home-chat-messages::-webkit-scrollbar-track { background: transparent; }
-.home-chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+.home-chat-messages::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.2); border-radius: 0; }
 
 .home-msg {
   max-width: 85%;
-  padding: 12px 16px;
-  border-radius: 14px;
+  padding: 10px 14px;
+  border-radius: 4px;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-family: 'Cubic 11', 'VT323', 'Courier New', monospace;
+  letter-spacing: 0.3px;
 }
 
 .home-msg-ai {
   align-self: flex-start;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-primary);
+  background: rgba(34, 211, 238, 0.06);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  color: #6EE7B7;
+  border-left: 2px solid #22D3EE;
 }
 
 .home-msg-user {
   align-self: flex-end;
-  background: rgba(34, 211, 238, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.25);
-  color: var(--glow-cyan);
+  background: rgba(167, 139, 250, 0.08);
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  color: #A78BFA;
+  border-right: 2px solid #A78BFA;
 }
 
 .home-chat-input-area {
-  padding: 12px;
-  border-top: 1px solid var(--glass-border);
+  padding: 10px 12px;
+  border-top: 1px solid rgba(34, 211, 238, 0.15);
   display: flex;
   gap: 8px;
   align-items: flex-end;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .home-chat-input {
   flex: 1;
-  padding: 12px 16px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  color: var(--text-primary);
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  border-radius: 4px;
+  color: #6EE7B7;
   font-size: 14px;
-  font-family: 'Inter', 'Noto Sans SC', sans-serif;
+  font-family: 'Cubic 11', 'VT323', 'Courier New', monospace;
   outline: none;
   resize: none;
-  min-height: 44px;
+  min-height: 40px;
   max-height: 120px;
+  letter-spacing: 0.3px;
 }
 
-.home-chat-input:focus { border-color: var(--glow-cyan); }
-.home-chat-input::placeholder { color: var(--text-tertiary); font-size: 13px; }
+.home-chat-input:focus { border-color: #22D3EE; box-shadow: 0 0 10px rgba(34,211,238,0.2); }
+.home-chat-input::placeholder { color: rgba(255,255,255,0.3); font-size: 13px; }
 
 .home-chat-send {
-  padding: 12px 18px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--glow-cyan), var(--glow-violet));
+  padding: 10px 16px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #22D3EE, #A78BFA);
   color: #0a0e17;
   font-weight: 600;
   border: none;
   cursor: pointer;
   transition: transform 0.2s ease;
+  font-family: 'Cubic 11', sans-serif;
+  font-size: 13px;
 }
 
 .home-chat-send:hover { transform: scale(1.05); }
@@ -1168,16 +1223,18 @@ html, body {
 
 .home-action-btn {
   padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 11px;
+  font-family: 'Cubic 11', 'Space Grotesk', sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   gap: 6px;
+  letter-spacing: 0.5px;
 }
 
 .home-action-btn:hover {
@@ -1281,29 +1338,38 @@ html, body {
 /* Rec Item (replaces rec-card for feedback) */
 .rec-item {
   padding: 14px;
-  border-radius: 12px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.06);
   margin-bottom: 10px;
   transition: all 0.3s ease;
+  clip-path: polygon(
+    0 5px, 3px 5px, 3px 3px, 5px 3px, 5px 0,
+    calc(100% - 5px) 0, calc(100% - 5px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 5px, 100% 5px,
+    100% calc(100% - 5px), calc(100% - 3px) calc(100% - 5px), calc(100% - 3px) calc(100% - 3px), calc(100% - 5px) calc(100% - 3px), calc(100% - 5px) 100%,
+    5px 100%, 5px calc(100% - 3px), 3px calc(100% - 3px), 3px calc(100% - 5px), 0 calc(100% - 5px)
+  );
 }
 
 .rec-item:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(34, 211, 238, 0.2);
+  background: rgba(34, 211, 238, 0.03);
 }
 
-.rec-item-title {
-  font-size: 14px;
+.rec-item-hook {
+  font-size: 15px;
   font-weight: 600;
-  margin-bottom: 4px;
-  color: var(--text-primary);
+  margin-bottom: 6px;
+  color: var(--glow-cyan);
+  font-family: 'Cubic 11', 'Space Grotesk', sans-serif;
+  letter-spacing: 0.5px;
 }
 
-.rec-item-desc {
+.rec-item-preview {
   font-size: 12px;
   color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: 6px;
+  line-height: 1.6;
+  margin-bottom: 8px;
 }
 
 .rec-item-reason {
@@ -1311,6 +1377,56 @@ html, body {
   color: var(--text-tertiary);
   font-style: italic;
   margin-bottom: 8px;
+}
+
+.rec-item-expand-wrap {
+  margin: 8px 0;
+}
+
+.rec-item-expand-btn {
+  background: none;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  color: var(--glow-violet);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 0;
+  cursor: pointer;
+  font-family: 'Cubic 11', sans-serif;
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+}
+
+.rec-item-expand-btn:hover {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: var(--glow-violet);
+}
+
+.rec-item-detail {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: rgba(167, 139, 250, 0.05);
+  border-left: 2px solid var(--glow-violet);
+  animation: detailFadeIn 0.3s ease;
+}
+
+@keyframes detailFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rec-item-detail-label {
+  font-size: 10px;
+  color: var(--glow-violet);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+  font-family: 'Cubic 11', sans-serif;
+}
+
+.rec-item-detail-content {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
 }
 
 /* Feedback Buttons */
@@ -1672,6 +1788,28 @@ html, body {
   .home-chat-container { max-height: 400px; }
 }
 
+/* ========== Pixel Chinese Font (Cubic 11) ========== */
+@font-face {
+  font-family: 'Cubic 11';
+  src: url('https://cdn.jsdelivr.net/gh/ACh-K/Cubic-11@main/fonts/web/Cubic_11.woff2') format('woff2');
+  font-display: swap;
+}
+
+/* 像素风字体工具类 */
+.pixel-font {
+  font-family: 'Cubic 11', 'VT323', 'Courier New', monospace;
+}
+
+/* 像素风切角（阶梯状圆角） */
+.pixel-corner {
+  clip-path: polygon(
+    0 5px, 2px 5px, 2px 3px, 3px 3px, 3px 2px, 5px 2px, 5px 0,
+    calc(100% - 5px) 0, calc(100% - 5px) 2px, calc(100% - 3px) 2px, calc(100% - 3px) 3px, calc(100% - 2px) 3px, calc(100% - 2px) 5px, 100% 5px,
+    100% calc(100% - 5px), calc(100% - 2px) calc(100% - 5px), calc(100% - 2px) calc(100% - 3px), calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) calc(100% - 2px), calc(100% - 5px) calc(100% - 2px), calc(100% - 5px) 100%,
+    5px 100%, 5px calc(100% - 2px), 3px calc(100% - 2px), 3px calc(100% - 3px), 2px calc(100% - 3px), 2px calc(100% - 5px), 0 calc(100% - 5px)
+  );
+}
+
 /* ========== Intro Screen (CMD Terminal) ========== */
 #screen-intro {
   display: none;
@@ -1703,7 +1841,7 @@ html, body {
   padding: 8px 18px;
   border-radius: 8px;
   font-size: 12px;
-  font-family: 'VT323', 'Courier New', monospace;
+  font-family: 'Cubic 11', 'VT323', 'Courier New', monospace;
   cursor: pointer;
   transition: all 0.3s;
   letter-spacing: 1px;
@@ -1755,17 +1893,17 @@ html, body {
   flex: 1;
   text-align: center;
   color: rgba(255, 255, 255, 0.35);
-  font-size: 12px;
-  font-family: 'VT323', 'Press Start 2P', 'Courier New', monospace;
+  font-size: 11px;
+  font-family: 'Cubic 11', 'VT323', 'Press Start 2P', 'Courier New', monospace;
   letter-spacing: 1px;
 }
 
 .cmd-body {
-  padding: 32px 28px;
-  min-height: 340px;
-  font-family: 'VT323', 'Press Start 2P', 'Courier New', 'Noto Sans SC', monospace;
-  font-size: 18px;
-  line-height: 1.9;
+  padding: 28px 24px;
+  min-height: 320px;
+  font-family: 'Cubic 11', 'VT323', 'Press Start 2P', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.7;
   color: #22D3EE;
   white-space: pre-wrap;
   text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
@@ -1777,8 +1915,8 @@ html, body {
 
 .cmd-cursor {
   display: inline-block;
-  width: 10px;
-  height: 20px;
+  width: 8px;
+  height: 16px;
   background: #22D3EE;
   vertical-align: middle;
   margin-left: 4px;
@@ -1792,11 +1930,11 @@ html, body {
 }
 
 .cmd-hint {
-  padding: 0 28px 20px;
+  padding: 0 24px 18px;
   text-align: center;
   color: rgba(255, 255, 255, 0.35);
-  font-size: 13px;
-  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 12px;
+  font-family: 'Cubic 11', 'VT323', 'Courier New', monospace;
   letter-spacing: 1px;
   animation: cmdFadeIn 0.5s ease;
 }
@@ -1808,21 +1946,21 @@ html, body {
 
 .cmd-enter-wrap {
   display: none;
-  padding: 0 28px 28px;
+  padding: 0 24px 24px;
   text-align: center;
   animation: cmdFadeIn 0.6s ease;
 }
 
 .cmd-enter-btn {
   display: inline-block;
-  padding: 14px 40px;
+  padding: 12px 36px;
   background: linear-gradient(135deg, #22D3EE, #A78BFA);
   color: #0A0E17;
   border: none;
   border-radius: 10px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+  font-family: 'Cubic 11', 'Space Grotesk', 'Noto Sans SC', sans-serif;
   cursor: pointer;
   transition: all 0.3s;
   letter-spacing: 1px;
@@ -1835,14 +1973,129 @@ html, body {
 
 @media (max-width: 640px) {
   .cmd-body {
-    padding: 24px 20px;
-    font-size: 16px;
-    min-height: 300px;
+    padding: 22px 18px;
+    font-size: 13px;
+    min-height: 280px;
   }
   .cmd-enter-btn {
-    padding: 12px 32px;
-    font-size: 14px;
+    padding: 10px 28px;
+    font-size: 13px;
   }
+}
+
+/* ========== Screen 0: Platform Auth Icons ========== */
+.s0-auth-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.s0-auth-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+  font-family: 'Cubic 11', 'Inter', sans-serif;
+}
+
+.s0-auth-icons {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.s0-auth-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  clip-path: polygon(
+    0 4px, 2px 4px, 2px 2px, 4px 2px, 4px 0,
+    calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px,
+    100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%,
+    4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px)
+  );
+}
+
+.s0-auth-icon:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(34, 211, 238, 0.4);
+  box-shadow: 0 4px 16px rgba(34, 211, 238, 0.15);
+}
+
+.s0-auth-icon img {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.s0-auth-icon .s0-icon-tip {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.s0-auth-icon:hover .s0-icon-tip {
+  opacity: 1;
+}
+
+/* Authorization toast */
+.auth-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: rgba(10, 14, 23, 0.95);
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  border-radius: 14px;
+  padding: 20px 32px;
+  color: var(--text-primary);
+  font-size: 14px;
+  text-align: center;
+  z-index: 1000;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(34, 211, 238, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.auth-toast.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.auth-toast-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.s0-actions-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 </style>
 </head>
@@ -1880,22 +2133,65 @@ html, body {
       <button class="what-btn" onclick="showAbout()">这是什么</button>
       <h1 class="s0-title">视差 | Parallax</h1>
       <div class="s0-subtitle-italic">Change your angle, change your world.</div>
-      <div style="margin-bottom: 32px; width: 100%; max-width: 360px;">
+      <div style="margin-bottom: 24px; width: 100%; max-width: 360px;">
         <input type="text" id="nameInput" class="name-input" placeholder="输入你的观测者名字" maxlength="20">
       </div>
-      <button class="btn btn-primary" onclick="handleStart()">开始</button>
-      <button class="btn btn-ghost" onclick="quickTest()" style="margin-top:8px;font-size:12px;opacity:0.5;">快速测试</button>
+
+      <div class="s0-auth-section">
+        <div class="s0-auth-icons">
+          <div class="s0-auth-icon" onclick="showAuthToast('bilibili')" title="B站">
+            <img src="https://cdn.simpleicons.org/bilibili/white" alt="B站">
+            <span class="s0-icon-tip">B站</span>
+          </div>
+          <div class="s0-auth-icon" onclick="showAuthToast('小红书')" title="小红书">
+            <img src="https://cdn.simpleicons.org/xiaohongshu/white" alt="小红书">
+            <span class="s0-icon-tip">小红书</span>
+          </div>
+          <div class="s0-auth-icon" onclick="showAuthToast('抖音')" title="抖音">
+            <img src="https://cdn.simpleicons.org/tiktok/white" alt="抖音">
+            <span class="s0-icon-tip">抖音</span>
+          </div>
+          <div class="s0-auth-icon" onclick="showAuthToast('知乎')" title="知乎">
+            <img src="https://cdn.simpleicons.org/zhihu/white" alt="知乎">
+            <span class="s0-icon-tip">知乎</span>
+          </div>
+          <div class="s0-auth-icon" onclick="showAuthToast('豆瓣')" title="豆瓣">
+            <img src="https://cdn.simpleicons.org/douban/white" alt="豆瓣">
+            <span class="s0-icon-tip">豆瓣</span>
+          </div>
+          <div class="s0-auth-icon" onclick="showAuthToast('知识库')" title="知识库">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            <span class="s0-icon-tip">知识库</span>
+          </div>
+        </div>
+        <div class="s0-auth-label">授权读取你的信息 让下一步更懂你</div>
+      </div>
+
+      <div class="s0-actions-row">
+        <button class="btn btn-primary" onclick="handleStart()">开始探索</button>
+        <button class="btn btn-secondary" onclick="quickTest()">快速测试</button>
+      </div>
     </div>
+
+    <!-- Authorization toast -->
+    <div class="auth-toast" id="authToast">
+      <div class="auth-toast-icon">🔒</div>
+      <div id="authToastText">授权功能还未完善 下个版本见！</div>
+    </div>
+
     <div class="screen" id="screen-1">
       <button class="home-nav-btn" onclick="goToScreen(4)">← 返回主页</button>
       <div class="s1-header">
-        <h2 class="s1-title">选择你的兴趣领域</h2>
-        <p class="s1-desc">点击选择 3-6 个领域，或自定义添加</p>
+        <h2 class="s1-title">选择你要探索的领域</h2>
+        <p class="s1-desc">点击选择 1 个你想探索的领域，或自定义输入</p>
       </div>
-      <div class="page-guide">这是建立你认知基线的第一步。选择你真正感兴趣的 3-6 个领域——它们将成为视差为你绘制认知地图的坐标。</div>
+      <div class="page-guide">选择 1 个你最想探索的领域——它将成为这次认知深潜的起点，视差会围绕它生成专属推荐。</div>
 
       <div class="selected-tags-bar">
-        <div class="selected-count">已选 <span id="selectedCount">0</span>/6</div>
+        <div class="selected-count">已选 <span id="selectedCount">0</span>/1</div>
         <div class="selected-tags" id="selectedTags"></div>
       </div>
 
@@ -2042,6 +2338,69 @@ html, body {
       </div>
     </div>
 
+    <!-- Screen 5: Dive (独立深潜页 - 只显示垂直深潜) -->
+    <div class="screen" id="screen-dive">
+      <button class="home-nav-btn" onclick="goToScreen(4)">← 返回主页</button>
+      <div class="s2-header">
+        <h2 class="s2-title" id="divePageTitle">垂直深潜</h2>
+        <p class="s1-desc">在你的已有领域内挖得更深</p>
+      </div>
+      <div class="page-guide" id="divePageGuide">基于你的画像，视差为你在已选领域内生成深挖路径。</div>
+      <div id="diveRecsArea" style="width:100%;max-width:720px;">
+        <div class="rec-section-header">
+          <div class="rec-section-icon cyan">↓</div>
+          <div class="rec-section-title cyan">垂直深潜</div>
+        </div>
+        <div id="diveVerticalRecs"></div>
+        <div style="text-align:center;margin-top:12px;">
+          <button class="btn btn-ghost" onclick="startHomeDive()">换一批</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 7: Explore Bridge (独立探索页 - 只显示水平桥接) -->
+    <div class="screen" id="screen-bridge">
+      <button class="home-nav-btn" onclick="goToScreen(4)">← 返回主页</button>
+      <div class="s2-header">
+        <h2 class="s2-title">水平桥接</h2>
+        <p class="s1-desc">发现跨领域的底层逻辑相似性</p>
+      </div>
+      <div class="page-guide">视差为你推荐与新领域思维模型相似的方向，帮你开拓眼界。</div>
+      <div style="width:100%;max-width:720px;">
+        <div class="rec-section-header">
+          <div class="rec-section-icon violet">⇄</div>
+          <div class="rec-section-title violet">水平桥接</div>
+        </div>
+        <div id="bridgeVerticalRecs"></div>
+        <div style="text-align:center;margin-top:12px;">
+          <button class="btn btn-ghost" onclick="regenBridgeRecs()">换一批</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 6: Explore (独立探索页) -->
+    <div class="screen" id="screen-explore">
+      <button class="home-nav-btn" onclick="goToScreen(4)">← 返回主页</button>
+      <div class="s2-header">
+        <h2 class="s2-title">新领域探索</h2>
+        <p class="s1-desc">选择一个你想探索的领域，开启认知深潜</p>
+      </div>
+      <div class="page-guide">选择 1 个你最想探索的领域，视差会围绕它生成专属推荐。</div>
+      <div class="selected-tags-bar">
+        <div class="selected-count">已选 <span id="exploreSelectedCount">0</span>/1</div>
+        <div class="selected-tags" id="exploreSelectedTags"></div>
+      </div>
+      <div class="field-grid" id="exploreFieldGrid"></div>
+      <div class="custom-input-wrap">
+        <input type="text" id="exploreCustomInput" placeholder="输入自定义领域..." maxlength="20">
+        <button class="btn btn-secondary" onclick="addExploreCustomField()">添加</button>
+      </div>
+      <div class="s1-actions" style="margin-top:16px;">
+        <button class="btn btn-secondary" onclick="refreshExploreFields()">↻ 换一批</button>
+        <button class="btn btn-primary" id="exploreNextBtn" disabled onclick="goExploreDive()">开始深潜</button>
+      </div>
+    </div>
+
     <!-- Spectrum Overlay -->
     <div class="spectrum-overlay" id="spectrumOverlay">
       <div class="spectrum-content">
@@ -2049,6 +2408,9 @@ html, body {
           <h2 style="font-family:'Orbitron',sans-serif;font-size:20px;background:linear-gradient(135deg,var(--glow-cyan),var(--glow-violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">能力光谱</h2>
           <button class="btn btn-ghost" onclick="hideSpectrum()">✕ 关闭</button>
         </div>
+        <!-- 综合六维图 -->
+        <div id="spectrumOverview" style="margin-bottom:20px;"></div>
+        <div style="font-size:12px;color:var(--text-tertiary);letter-spacing:0.05em;margin-bottom:8px;padding:0 4px;">历史评测记录</div>
         <div id="spectrumList"></div>
       </div>
     </div>
@@ -2146,18 +2508,20 @@ const state = {
   currentEvaluation: null,
   quickFeedbackHistory: [],
   exploreCount: 0,
-  lastExploreTime: null
+  lastExploreTime: null,
+  actionLog: [],
+  exploreSelectedFields: []
 };
 
 // ========== DeepSeek API Configuration ==========
-// API Key 通过 localStorage 读取，避免硬编码泄露
-// 用户可通过在控制台执行 localStorage.setItem('deepseek_api_key', 'YOUR_KEY') 设置
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
-const DEEPSEEK_API_KEY = localStorage.getItem('deepseek_api_key') || '';
+// API Key 从 localStorage 读取，避免硬编码泄露。首次使用请在浏览器控制台执行：
+// localStorage.setItem('parallax_deepseek_key', '你的_deepseek_key')
+const DEEPSEEK_API_KEY = localStorage.getItem('parallax_deepseek_key') || '';
 
 async function callDeepSeekAPI(prompt, systemPrompt = '') {
   if (!DEEPSEEK_API_KEY) {
-    console.warn('DeepSeek API Key 未配置');
+    console.warn('DeepSeek API Key 未配置。请在控制台执行：localStorage.setItem("parallax_deepseek_key", "你的key")');
     return null;
   }
   try {
@@ -2235,14 +2599,17 @@ window.addEventListener('resize', () => {
 // ========== Screen Navigation ==========
 function goToScreen(n) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(`screen-${n}`).classList.add('active');
+  const screenEl = document.getElementById(`screen-${n}`);
+  if (screenEl) screenEl.classList.add('active');
   state.currentScreen = n;
-  
-  const progress = (n / 4) * 100;
+
+  const numN = typeof n === 'number' ? n : 4;
+  const progress = (numN / 4) * 100;
   document.getElementById('progressBar').style.width = progress + '%';
-  
-  if (n === 1 && state.stars.length === 0) {
-    refreshFields();
+
+  if (n === 'explore' || n === 1) {
+    if (n === 1 && state.stars.length === 0) refreshFields();
+    if (n === 'explore') refreshExploreFields();
   }
   if (n === 2 && state.chatHistory.length === 0) {
     startChat();
@@ -2366,10 +2733,18 @@ const allFields = [
   '建筑学', '音乐理论', '政治学', '人类学', '地质学',
   '计算机科学', '统计学', '医学', '药学', '法学',
   '教育学', '传播学', '环境科学', '材料科学', '机械工程',
-  '电子工程', '量子计算', '区块链', '游戏设计', '电影研究',
+  '电子工程', '量子计算', '区块链', '电影研究',
   '文学批评', '比较文学', '认知科学', '复杂系统', '网络科学',
-  '混沌理论', '信息论', '控制论', '系统论', '现象学'
+  '混沌理论', '信息论', '控制论', '系统论', '现象学',
+  // 细分兴趣领域
+  '番剧', '三国杀', '美妆', '游戏', '漫画',
+  'ACG', '动画', '轻小说', '推理', '科幻',
+  '音乐制作', '摄影', '书法', '古风', '二次元',
+  '手办', '模玩', '桌游', '跑团', '电音',
+  '说唱', '舞蹈', '健身', '烹饪', '旅行',
+  '咖啡', '茶艺', '骑行', '攀岩', '桌球'
 ];
+
 
 function pickRandomFields(count) {
   const shuffled = [...allFields].sort(() => Math.random() - 0.5);
@@ -2413,7 +2788,22 @@ function toggleField(idx, chipEl) {
     check.textContent = '';
     state.selectedFields = state.selectedFields.filter(f => f !== star.name);
   } else {
-    if (state.selectedFields.length >= 6) return;
+    // 单选模式：清除其他已选
+    if (state.selectedFields.length >= 1) {
+      state.selectedFields.forEach(prevName => {
+        const prevStarIdx = state.stars.findIndex(s => s.name === prevName);
+        if (prevStarIdx !== -1) {
+          state.stars[prevStarIdx].selected = false;
+          const grid = document.getElementById('fieldGrid');
+          if (grid.children[prevStarIdx]) {
+            grid.children[prevStarIdx].classList.remove('selected');
+            const prevCheck = grid.children[prevStarIdx].querySelector('.field-chip-check');
+            if (prevCheck) prevCheck.textContent = '';
+          }
+        }
+      });
+      state.selectedFields = [];
+    }
     star.selected = true;
     chipEl.classList.add('selected');
     check.textContent = '✓';
@@ -2461,15 +2851,15 @@ function addCustomField() {
   const input = document.getElementById('customFieldInput');
   const value = input.value.trim();
   if (!value) return;
-  if (state.selectedFields.length >= 6) {
-    input.value = '';
-    return;
+  // 单选模式：自定义添加会替换已有选择
+  if (state.selectedFields.length >= 1) {
+    state.selectedFields = [];
   }
   if (state.selectedFields.includes(value)) {
     input.value = '';
     return;
   }
-  
+
   state.selectedFields.push(value);
   updateSelectedTags();
   updateNextButton();
@@ -2480,6 +2870,13 @@ document.getElementById('customFieldInput').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
     addCustomField();
+  }
+});
+
+document.getElementById('exploreCustomInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addExploreCustomField();
   }
 });
 
@@ -3172,19 +3569,72 @@ function renderS3Recommendations(recData) {
   }
 }
 
+function linkifyDetail(text) {
+  // 先转义防XSS
+  let s = escapeHtml(text);
+  // 1) 真实网址转链接
+  s = s.replace(/(https?:\/\/[^\s<，。、；"]+)/g, (m) => {
+    const url = m.replace(/&amp;/g, '&');
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-cyan);text-decoration:underline;word-break:break-all;">${m}</a>`;
+  });
+  // 2) "B站搜「xxx」" / "B站搜"xxx"" → B站搜索链接
+  s = s.replace(/B站搜[「""]([^」""]+)[」""]/g, (m, kw) => {
+    const url = 'https://search.bilibili.com/all?keyword=' + encodeURIComponent(kw);
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-cyan);text-decoration:underline;">B站搜「${kw}」</a>`;
+  });
+  // 3) "豆瓣《xxx》" → 豆瓣搜索链接
+  s = s.replace(/豆瓣《([^》]+)》/g, (m, kw) => {
+    const url = 'https://search.douban.com/book/subject_search?search_text=' + encodeURIComponent(kw);
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-cyan);text-decoration:underline;">豆瓣《${kw}》</a>`;
+  });
+  // 4) 换行处理
+  s = s.replace(/\n/g, '<br>');
+  return s;
+}
+
 function createRecItem(item, type) {
   const div = document.createElement('div');
   div.className = 'rec-item';
+
+  // 兼容旧格式（title/description/reason）和新格式（hook/preview/detail）
+  const hook = item.hook || item.title || '';
+  const preview = item.preview || item.description || '';
+  const detail = item.detail || '';
+  const reason = item.reason || '';
+  const itemId = 'rec' + Math.random().toString(36).substring(2, 9);
+
   div.innerHTML = `
-    <div class="rec-item-title">${escapeHtml(item.title)}</div>
-    <div class="rec-item-desc">${escapeHtml(item.description)}</div>
-    ${item.reason ? `<div class="rec-item-reason">${escapeHtml(item.reason)}</div>` : ''}
+    <div class="rec-item-hook">${escapeHtml(hook)}</div>
+    ${preview ? `<div class="rec-item-preview">${escapeHtml(preview)}</div>` : ''}
+    ${reason ? `<div class="rec-item-reason">${escapeHtml(reason)}</div>` : ''}
+    ${detail ? `
+      <div class="rec-item-expand-wrap">
+        <button class="rec-item-expand-btn" onclick="toggleRecDetail('${itemId}')">感兴趣？展开看看 →</button>
+        <div class="rec-item-detail" id="${itemId}" style="display:none;">
+          <div class="rec-item-detail-label">下一步可以看：</div>
+          <div class="rec-item-detail-content">${linkifyDetail(detail)}</div>
+        </div>
+      </div>
+    ` : ''}
     <div class="rec-item-feedback">
-      <button class="feedback-btn useful" onclick="handleFeedback(this, 'useful', '${escapeHtml(item.title)}')">有用</button>
-      <button class="feedback-btn useless" onclick="handleFeedback(this, 'useless', '${escapeHtml(item.title)}')">无用</button>
+      <button class="feedback-btn useful" onclick="handleFeedback(this, 'useful', '${escapeHtml(hook)}')">有用</button>
+      <button class="feedback-btn useless" onclick="handleFeedback(this, 'useless', '${escapeHtml(hook)}')">无用</button>
     </div>
   `;
   return div;
+}
+
+function toggleRecDetail(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const btn = el.parentElement.querySelector('.rec-item-expand-btn');
+  if (el.style.display === 'none') {
+    el.style.display = 'block';
+    if (btn) btn.textContent = '收起 ↑';
+  } else {
+    el.style.display = 'none';
+    if (btn) btn.textContent = '感兴趣？展开看看 →';
+  }
 }
 
 function refreshS3Recommendations() {
@@ -3225,6 +3675,7 @@ function initHomePage() {
 }
 
 function startNewExploration() {
+  logAction('new_exploration', '开启新领域探索');
   state.selectedFields = [];
   state.stars = [];
   state.chatHistory = [];
@@ -3236,7 +3687,152 @@ function startNewExploration() {
   state.userTraits = '';
   state.currentEvaluation = null;
   state.homeChatRound = 0;
-  goToScreen(1);
+  state.exploreSelectedFields = [];
+  state.exploreStars = [];
+  // 跳转到独立探索页面
+  goToScreen('explore');
+}
+
+// ========== Screen Explore (独立探索页) ==========
+let exploreStars = [];
+
+function refreshExploreFields() {
+  const grid = document.getElementById('exploreFieldGrid');
+  grid.innerHTML = '';
+  exploreStars = [];
+
+  const fields = pickRandomFields(10);
+  const selected = state.exploreSelectedFields || [];
+
+  fields.forEach((field, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'field-chip';
+    chip.style.animationDelay = (i * 30) + 'ms';
+
+    const isSelected = selected.includes(field);
+    if (isSelected) chip.classList.add('selected');
+
+    chip.innerHTML = `
+      <span>${field}</span>
+      <span class="field-chip-check">${isSelected ? '✓' : ''}</span>
+    `;
+    chip.addEventListener('click', () => toggleExploreField(i, chip));
+    grid.appendChild(chip);
+
+    exploreStars.push({ id: i, name: field, selected: isSelected });
+  });
+}
+
+function toggleExploreField(idx, chipEl) {
+  const star = exploreStars[idx];
+  const check = chipEl.querySelector('.field-chip-check');
+
+  if (star.selected) {
+    star.selected = false;
+    chipEl.classList.remove('selected');
+    check.textContent = '';
+    state.exploreSelectedFields = state.exploreSelectedFields.filter(f => f !== star.name);
+  } else {
+    // 单选模式：清除其他
+    state.exploreSelectedFields.forEach(prevName => {
+      const prevIdx = exploreStars.findIndex(s => s.name === prevName);
+      if (prevIdx !== -1) {
+        exploreStars[prevIdx].selected = false;
+        const grid = document.getElementById('exploreFieldGrid');
+        if (grid.children[prevIdx]) {
+          grid.children[prevIdx].classList.remove('selected');
+          const prevCheck = grid.children[prevIdx].querySelector('.field-chip-check');
+          if (prevCheck) prevCheck.textContent = '';
+        }
+      }
+    });
+    state.exploreSelectedFields = [];
+    star.selected = true;
+    chipEl.classList.add('selected');
+    check.textContent = '✓';
+    state.exploreSelectedFields.push(star.name);
+  }
+
+  updateExploreSelectedTags();
+  updateExploreNextButton();
+}
+
+function updateExploreSelectedTags() {
+  const container = document.getElementById('exploreSelectedTags');
+  container.innerHTML = '';
+  (state.exploreSelectedFields || []).forEach((field, idx) => {
+    const tag = document.createElement('div');
+    tag.className = 'selected-tag';
+    tag.innerHTML = `${field} <span class="remove" onclick="removeExploreField(${idx})">×</span>`;
+    container.appendChild(tag);
+  });
+  const countEl = document.getElementById('exploreSelectedCount');
+  if (countEl) countEl.textContent = (state.exploreSelectedFields || []).length;
+}
+
+function removeExploreField(idx) {
+  const field = state.exploreSelectedFields[idx];
+  state.exploreSelectedFields.splice(idx, 1);
+  const starIdx = exploreStars.findIndex(s => s.name === field);
+  if (starIdx !== -1) {
+    exploreStars[starIdx].selected = false;
+    const grid = document.getElementById('exploreFieldGrid');
+    if (grid.children[starIdx]) {
+      grid.children[starIdx].classList.remove('selected');
+      const check = grid.children[starIdx].querySelector('.field-chip-check');
+      if (check) check.textContent = '';
+    }
+  }
+  updateExploreSelectedTags();
+  updateExploreNextButton();
+}
+
+function addExploreCustomField() {
+  const input = document.getElementById('exploreCustomInput');
+  const value = input.value.trim();
+  if (!value) return;
+  if (!state.exploreSelectedFields) state.exploreSelectedFields = [];
+  if (state.exploreSelectedFields.length >= 1) {
+    state.exploreSelectedFields = [];
+  }
+  if (state.exploreSelectedFields.includes(value)) {
+    input.value = '';
+    return;
+  }
+  state.exploreSelectedFields.push(value);
+  updateExploreSelectedTags();
+  updateExploreNextButton();
+  input.value = '';
+}
+
+function updateExploreNextButton() {
+  const btn = document.getElementById('exploreNextBtn');
+  if (btn) btn.disabled = (state.exploreSelectedFields || []).length === 0;
+}
+
+function goExploreDive() {
+  if ((state.exploreSelectedFields || []).length === 0) return;
+  // 将探索选中的领域设为当前画像领域
+  state.selectedFields = [...state.exploreSelectedFields];
+  logAction('explore_dive', `探索领域：${state.selectedFields.join('、')}`);
+  // 跳转到水平桥接独立页面
+  goToScreen('bridge');
+  // 立即生成水平桥接推荐
+  const bridgeRecs = document.getElementById('bridgeVerticalRecs');
+  if (bridgeRecs) bridgeRecs.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-tertiary);font-size:12px;">正在生成水平桥接推荐...</div>';
+  generateHomeBridgeRecs();
+}
+
+// 换一批：重新生成水平桥接
+function regenBridgeRecs() {
+  const bridgeRecs = document.getElementById('bridgeVerticalRecs');
+  if (bridgeRecs) bridgeRecs.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-tertiary);font-size:12px;">正在生成水平桥接推荐...</div>';
+  generateHomeBridgeRecs();
+}
+
+async function generateDiveRecs() {
+  // 已不再使用（保留兼容）
+  return;
 }
 
 function addHomeMessage(text, isUser) {
@@ -3300,20 +3896,25 @@ async function generateHomeBridgeRecs() {
   const dimensions = evaluation ? evaluation.dimensions : (state.userDimensions || {});
   const level = evaluation ? evaluation.level : (state.userDepth ? state.userDepth.level : '入门');
 
-  const systemPrompt = `你是一位认知桥梁架构师。基于用户画像，推荐跨领域的思维模型相似领域。只输出纯JSON。`;
+  const systemPrompt = `你是一位认知桥梁架构师。基于用户画像，推荐跨领域的思维模型相似方向。重要原则：切口要小，不要一上来就推荐整个新领域或大部头。先给一个轻量、具体、容易上手的小入口（如一个现象、一个问题、一个小实验），用户感兴趣后再深入。只输出纯JSON。`;
   const userPrompt = `【用户画像】核心领域：${fields.join('、')}，认知层级：${level}，维度：${JSON.stringify(dimensions)}
 
-【任务】推荐3个水平桥接领域方向（只给大方向和推荐原因，不要给细节）。
+【任务】推荐3个水平桥接方向（跨领域但底层逻辑相似）。每条先给一个小切口的钩子，而不是直接推荐整个领域。例如：用户喜欢物理，不要直接推荐"学经济学"，而是先说"为什么城市的交通流和分子运动这么像？"这样的小入口。
+
+每条包含：
+- hook：一句话引子，引起跨领域好奇（如"为什么音乐的和声和数学的斐波那契数列有关？"）
+- preview：简短说明这个方向为什么和用户已有兴趣底层相通（1-2句，不要给链接或细节）
+- detail：如果用户感兴趣，后续可推送的具体资源，必须具体到可访问的资源名+获取途径或网址。优先给真实存在的网址（https开头）或明确检索路径。示例格式："和声学入门：B站搜「李重光基本乐理」https://www.bilibili.com"、"斐波那契与艺术：维基百科 https://zh.wikipedia.org/wiki/斐波那契数列"。不要只给泛泛的方向词，必须能落地到用户能直接点开或搜到的资源。这一步不直接展示给用户
 
 输出格式：纯JSON
 {
   "bridge": [
-    {"field": "领域名称", "reason": "推荐原因（为什么这个领域和用户兴趣底层逻辑相似）"}
+    {"hook": "...", "preview": "...", "detail": "..."}
   ]
 }`;
 
   const result = await callDeepSeekAPI(userPrompt, systemPrompt);
-  const bridgeRecs = document.getElementById('homeBridgeRecs');
+  const bridgeRecs = document.getElementById('bridgeVerticalRecs') || document.getElementById('homeBridgeRecs');
   bridgeRecs.innerHTML = '';
 
   if (result) {
@@ -3325,18 +3926,8 @@ async function generateHomeBridgeRecs() {
       const data = JSON.parse(jsonStr);
 
       if (data.bridge && data.bridge.length > 0) {
-        data.bridge.forEach((item, idx) => {
-          const recEl = document.createElement('div');
-          recEl.className = 'bridge-rec-item';
-          recEl.innerHTML = `
-            <div class="bridge-rec-header">
-              <span class="bridge-rec-field">${escapeHtml(item.field)}</span>
-              <span class="bridge-rec-expand" onclick="event.stopPropagation();loadBridgeDetail(${idx}, '${escapeHtml(item.field)}')">感兴趣 →</span>
-            </div>
-            <div class="bridge-rec-reason">${escapeHtml(item.reason)}</div>
-            <div class="bridge-rec-detail" id="bridge-detail-${idx}"></div>
-          `;
-          bridgeRecs.appendChild(recEl);
+        data.bridge.forEach(item => {
+          bridgeRecs.appendChild(createRecItem(item, 'bridge'));
         });
       }
     } catch (e) {
@@ -3379,10 +3970,11 @@ async function loadBridgeDetail(idx, fieldName) {
 }
 
 async function startHomeDive() {
-  const recArea = document.getElementById('homeRecArea');
-  recArea.style.display = 'block';
+  logAction('start_dive', '开始深潜');
+  // 跳转到独立深潜页面（只显示垂直深潜）
+  goToScreen('dive');
 
-  const vertRecs = document.getElementById('homeVerticalRecs');
+  const vertRecs = document.getElementById('diveVerticalRecs');
   vertRecs.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-tertiary);font-size:12px;">正在生成垂直深潜推荐...</div>';
 
   const evaluation = state.currentEvaluation;
@@ -3390,14 +3982,19 @@ async function startHomeDive() {
   const dimensions = evaluation ? evaluation.dimensions : (state.userDimensions || {});
   const level = evaluation ? evaluation.level : (state.userDepth ? state.userDepth.level : '入门');
 
-  const systemPrompt = `你是一位认知深潜导师。基于用户画像，生成2-3条垂直深潜推荐。只输出纯JSON，不要输出任何其他内容。`;
+  const systemPrompt = `你是一位认知深潜导师。基于用户画像，生成2-3条垂直深潜推荐。重要原则：切口要小，不要一上来就推荐大部头书籍或整套课程。先给一个轻量、具体、容易上手的小方向（如一篇文章、一个视频、一个小实验、一个具体的切入点），用户感兴趣后再深入。只输出纯JSON，不要输出任何其他内容。`;
   const userPrompt = `【用户画像】核心领域：${fields.join('、')}，认知层级：${level}，维度：${JSON.stringify(dimensions)}
 
-【任务】生成2-3条垂直深潜推荐（只在已有领域内深挖），每条包含title、description、reason。推荐要具体可落实。
+【任务】生成2-3条垂直深潜推荐（只在已有领域内深挖）。每条先给一个小切口的方向钩子，而不是直接推荐大部头。例如：用户学过物理竞赛，不要直接推荐《费曼物理学讲义》，而是先说"看看物理奥赛国家集训队队员的感想？"这样的小入口。
+
+每条包含：
+- hook：一句话引子，引起好奇（如"来预习一下大学物理吧"、"看看竞赛大佬是怎么思考这道题的"）
+- preview：简短说明这个小方向为什么值得看（1-2句，不要给链接或细节）
+- detail：如果用户感兴趣，后续可推送的具体资源，必须具体到可访问的资源名+获取途径或网址。优先给真实存在的网址（https开头）或明确检索路径。示例格式："集训队采访：B站搜「物理竞赛集训队」https://www.bilibili.com"、"大学物理：B站搜「清华 基础物理」https://www.bilibili.com"、"《费曼物理学讲义》卷一：https://book.douban.com"。不要只给泛泛的方向词，必须能落地到用户能直接点开或搜到的资源。这一步不直接展示给用户
 
 输出格式：纯JSON
 {
-  "deep": [{"title": "...", "description": "...", "reason": "推荐理由"}]
+  "deep": [{"hook": "...", "preview": "...", "detail": "..."}]
 }`;
 
   const result = await callDeepSeekAPI(userPrompt, systemPrompt);
@@ -3415,8 +4012,6 @@ async function startHomeDive() {
         data.deep.forEach(item => {
           vertRecs.appendChild(createRecItem(item, 'deep'));
         });
-
-        await generateHomeBridgeRecs();
       }
     } catch (e) {
       vertRecs.innerHTML = '<div style="padding:12px;color:var(--text-tertiary);font-size:13px;">解析失败，请重试</div>';
@@ -3453,14 +4048,72 @@ function hideAbout(event) {
   document.getElementById('aboutOverlay').classList.remove('show');
 }
 
+// ========== Platform Auth Toast ==========
+let authToastTimer = null;
+function showAuthToast(platform) {
+  const toast = document.getElementById('authToast');
+  const text = document.getElementById('authToastText');
+  text.textContent = '授权功能还未完善 下个版本见！';
+  toast.classList.add('show');
+  if (authToastTimer) clearTimeout(authToastTimer);
+  authToastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2000);
+}
+
 // ========== Spectrum ==========
 function showSpectrum() {
   const overlay = document.getElementById('spectrumOverlay');
   const list = document.getElementById('spectrumList');
+  const overview = document.getElementById('spectrumOverview');
   list.innerHTML = '';
+  overview.innerHTML = '';
 
   const savedData = loadFromLocalStorage();
-  const history = savedData ? savedData.historyEvaluations : [];
+  let history = savedData ? (savedData.historyEvaluations || []) : [];
+  // 包含当前评测（若未存入历史）
+  if (state.currentEvaluation) {
+    const exists = history.some(h => h.date === state.currentEvaluation.date);
+    if (!exists) history = [state.currentEvaluation, ...history];
+  }
+
+  // 综合六维图：聚合所有历史评测的维度
+  const DIM_KEYS = ['逻辑分析', '感性直觉', '系统构建', '表达叙事', '实证探究', '审美创造'];
+  const dimSums = {};
+  const dimCounts = {};
+  DIM_KEYS.forEach(k => { dimSums[k] = 0; dimCounts[k] = 0; });
+
+  history.forEach(ev => {
+    if (ev.dimensions) {
+      DIM_KEYS.forEach(k => {
+        if (typeof ev.dimensions[k] === 'number') {
+          dimSums[k] += ev.dimensions[k];
+          dimCounts[k] += 1;
+        }
+      });
+    }
+  });
+
+  const mergedDims = {};
+  let hasAny = false;
+  DIM_KEYS.forEach(k => {
+    mergedDims[k] = dimCounts[k] > 0 ? (dimSums[k] / dimCounts[k]) : 0;
+    if (dimCounts[k] > 0) hasAny = true;
+  });
+
+  if (hasAny) {
+    overview.innerHTML = `
+      <div style="text-align:center;margin-bottom:8px;">
+        <div style="font-size:13px;color:var(--text-secondary);letter-spacing:0.05em;">综合能力画像（${history.length} 次评测平均）</div>
+      </div>
+      <div style="display:flex;justify-content:center;">
+        <svg id="spectrumRadar" width="280" height="260" viewBox="0 0 280 260"></svg>
+      </div>
+    `;
+    drawSpectrumRadar(mergedDims);
+  } else if (history.length === 0) {
+    overview.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-tertiary);font-size:13px;">完成首次评测后这里会显示你的综合能力画像</div>';
+  }
 
   if (history.length === 0) {
     list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-tertiary);">暂无历史评测记录</div>';
@@ -3486,6 +4139,86 @@ function showSpectrum() {
   overlay.classList.add('show');
 }
 
+// 综合六维雷达图（独立绘制到 spectrumRadar）
+function drawSpectrumRadar(dimensions) {
+  const svg = document.getElementById('spectrumRadar');
+  if (!svg) return;
+  svg.innerHTML = '';
+
+  const cx = 140, cy = 130, maxR = 90;
+  const dims = Object.entries(dimensions);
+  const n = dims.length;
+  const angleStep = (2 * Math.PI) / n;
+
+  // 网格环
+  for (let ring = 1; ring <= 4; ring++) {
+    const r = maxR * (ring / 4);
+    let points = '';
+    for (let i = 0; i < n; i++) {
+      const angle = i * angleStep - Math.PI / 2;
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+      points += `${x},${y} `;
+    }
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', points.trim());
+    polygon.setAttribute('class', 'radar-grid');
+    svg.appendChild(polygon);
+  }
+
+  // 轴线
+  for (let i = 0; i < n; i++) {
+    const angle = i * angleStep - Math.PI / 2;
+    const x = cx + maxR * Math.cos(angle);
+    const y = cy + maxR * Math.sin(angle);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', cx); line.setAttribute('y1', cy);
+    line.setAttribute('x2', x); line.setAttribute('y2', y);
+    line.setAttribute('class', 'radar-axis');
+    svg.appendChild(line);
+  }
+
+  // 数据多边形
+  let dataPoints = '';
+  for (let i = 0; i < n; i++) {
+    const [name, score] = dims[i];
+    const angle = i * angleStep - Math.PI / 2;
+    const r = maxR * (score / 10);
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    dataPoints += `${x},${y} `;
+  }
+  const dataPolygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  dataPolygon.setAttribute('points', dataPoints.trim());
+  dataPolygon.setAttribute('class', 'radar-polygon');
+  svg.appendChild(dataPolygon);
+
+  // 数据点 + 标签
+  for (let i = 0; i < n; i++) {
+    const [name, score] = dims[i];
+    const angle = i * angleStep - Math.PI / 2;
+    const r = maxR * (score / 10);
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('cx', x); dot.setAttribute('cy', y);
+    dot.setAttribute('r', 3);
+    dot.setAttribute('fill', '#22D3EE');
+    svg.appendChild(dot);
+
+    const lx = cx + (maxR + 20) * Math.cos(angle);
+    const ly = cy + (maxR + 20) * Math.sin(angle);
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', lx); label.setAttribute('y', ly);
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('dominant-baseline', 'middle');
+    label.setAttribute('class', 'radar-label');
+    label.textContent = name;
+    svg.appendChild(label);
+  }
+}
+
 function hideSpectrum() {
   document.getElementById('spectrumOverlay').classList.remove('show');
 }
@@ -3501,7 +4234,8 @@ function saveToLocalStorage() {
     historyEvaluations: existingData ? existingData.historyEvaluations : [],
     quickFeedbackHistory: state.quickFeedbackHistory,
     exploreCount: state.exploreCount,
-    lastExploreTime: new Date().toISOString()
+    lastExploreTime: new Date().toISOString(),
+    actionLog: state.actionLog
   };
 
   // Add current evaluation to history if it's new
@@ -3540,6 +4274,7 @@ function loadDataIntoState(data) {
   state.lastExploreTime = data.lastExploreTime;
   state.quickFeedbackHistory = data.quickFeedbackHistory || [];
   state.currentEvaluation = data.currentEvaluation;
+  state.actionLog = data.actionLog || [];
 
   if (data.currentEvaluation) {
     const ev = data.currentEvaluation;
@@ -3549,6 +4284,16 @@ function loadDataIntoState(data) {
     state.userTraits = ev.traits || '';
     state.profileTags = ev.keywords || [];
   }
+}
+
+// ========== Action Log ==========
+function logAction(type, detail) {
+  state.actionLog.push({
+    type: type,
+    detail: detail || '',
+    time: new Date().toISOString()
+  });
+  saveToLocalStorage();
 }
 
 // ========== Handle Start (Screen 0) ==========
@@ -3667,19 +4412,22 @@ async function fetchRecommendationsFromAPI(seed) {
     if (state.userInfo.keywords.length) dimensions.关键词 = state.userInfo.keywords.join('、');
   }
 
-  const systemPrompt = `你是一位认知桥梁架构师。只输出纯JSON，不要输出任何其他内容。`;
+  const systemPrompt = `你是一位认知桥梁架构师。重要原则：切口要小，不要一上来就推荐大部头书籍或整套课程。先给一个轻量、具体、容易上手的小方向（如一篇文章、一个现象、一个问题、一个小实验），用户感兴趣后再深入。只输出纯JSON，不要输出任何其他内容。`;
   const userPrompt = `【用户画像】用户的核心领域是：${fields.join('、')}，认知层级为：${level}，画像维度是：${JSON.stringify(dimensions)}。随机种子：${seed || Date.now()}
 
-【任务】请生成两种推荐，每条推荐包含title和description：
-1. 垂直深潜（2条）：在用户已有领域内，推荐更底层、更原理级的内容或相近领域的内容（如：用户提到对音乐感兴趣 可以推荐用户去学习底层和弦规律 或是相近领域的编曲）
-2. 水平桥接（2条）：提取用户兴趣的底层思维模型，推荐跨领域但逻辑相同的领域
+【任务】请生成两种推荐，每条先给一个小切口的钩子，而不是直接推荐大部头：
+1. 垂直深潜（2条）：在用户已有领域内，给一个小切口入口（如：用户学过物理竞赛，不要直接推荐《费曼物理学讲义》，而是先说"看看物理奥赛国家集训队队员的感想？"）
+2. 水平桥接（2条）：跨领域但底层逻辑相似，同样先给小入口（如：用户喜欢物理，不要直接推荐"学经济学"，而是先说"为什么城市的交通流和分子运动这么像？"）
 
-要求：要有细节、可落实。具体到某老师的B站课程、某本书的豆瓣链接、对应内容的专业资源库、接下来要干的事等
+每条包含：
+- hook：一句话引子，引起好奇
+- preview：简短说明为什么值得看（1-2句，不要给链接或细节）
+- detail：用户感兴趣后可推送的具体资源，必须具体到可访问的资源名+获取途径或网址。优先给真实存在的网址（https开头）或明确检索路径，如"B站搜「某老师 大学物理」https://www.bilibili.com"、"豆瓣《某书》https://book.douban.com"。不要只给泛泛方向词，必须能落地到可直接点开或搜到的资源。这一步不直接展示
 
 输出格式：纯JSON
 {
-  "deep": [{"title": "...", "description": "...", "reason": "推荐理由"}],
-  "bridge": [{"title": "...", "description": "...", "reason": "桥接逻辑"}]
+  "deep": [{"hook": "...", "preview": "...", "detail": "..."}],
+  "bridge": [{"hook": "...", "preview": "...", "detail": "..."}]
 }`;
 
   const result = await callDeepSeekAPI(userPrompt, systemPrompt);
@@ -3711,6 +4459,7 @@ window.addEventListener('load', () => {
   if (!introSeen) {
     startIntro();
   } else {
+    document.getElementById('screen-0').classList.add('active');
     document.getElementById('progressBar').style.width = '0%';
   }
 });
