@@ -7,6 +7,11 @@ server/node_modules/
 .env.local
 *.env
 
+# 参赛本地版（内置 API Key，禁止推送）
+parallax-demo-local.html
+*-local.html
+*-internal.html
+
 # 系统文件
 .DS_Store
 Thumbs.db
