@@ -537,6 +537,30 @@
         right: -100%;
       }
     }
+    
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes cmdGlow {
+      0%, 100% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.15); }
+      50% { box-shadow: 0 0 50px rgba(0, 212, 255, 0.25); }
+    }
+    
+    .cmd-window {
+      animation: cmdGlow 4s ease-in-out infinite;
+    }
+    
+    .skip-btn:hover {
+      background: rgba(255,255,255,0.15) !important;
+      color: rgba(255,255,255,0.9) !important;
+    }
   </style>
 </head>
 <body>
@@ -589,6 +613,37 @@
       </div>
       
       <div class="story-actions" id="storyActions"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-intro">
+    <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;">
+      <div style="position: relative; width: 100%; max-width: 640px;">
+        <button class="skip-btn" onclick="skipIntro()" style="position: absolute; top: -40px; right: 0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); padding: 6px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: all 0.3s; font-family: monospace;">跳过 →</button>
+        
+        <div class="cmd-window" style="background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 12px; overflow: hidden; box-shadow: 0 0 40px rgba(0, 212, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.4);">
+          <div style="background: rgba(255, 255, 255, 0.05); padding: 12px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+            <div style="width: 12px; height: 12px; border-radius: 50%; background: #FF5F57;"></div>
+            <div style="width: 12px; height: 12px; border-radius: 50%; background: #FFBD2E;"></div>
+            <div style="width: 12px; height: 12px; border-radius: 50%; background: #28CA42;"></div>
+            <div style="flex: 1; text-align: center; color: rgba(255,255,255,0.4); font-size: 12px; font-family: 'Courier New', monospace;">parallax ~ terminal</div>
+          </div>
+          
+          <div id="cmdContent" style="padding: 24px; min-height: 320px; font-family: 'Courier New', monospace; font-size: 15px; line-height: 1.8; color: #00D4FF; white-space: pre-wrap;">
+            <span id="cmdText"></span><span class="cmd-cursor" style="display: inline-block; width: 10px; height: 18px; background: #00D4FF; vertical-align: middle; margin-left: 2px; animation: blink 1s infinite;"></span>
+          </div>
+          
+          <div id="cmdHint" style="display: none; padding: 0 24px 20px; text-align: center; color: rgba(255,255,255,0.4); font-size: 13px; font-family: 'Courier New', monospace; animation: fadeIn 0.5s;">
+            按 Enter 继续 ↵
+          </div>
+          
+          <div id="cmdEnterBtn" style="display: none; padding: 0 24px 24px; text-align: center;">
+            <button class="btn btn-primary" onclick="enterIntro()" style="background: linear-gradient(135deg, #00D4FF, #00FF88); color: #0A0E17; font-weight: 600;">
+              进入视差 →
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -829,6 +884,12 @@
       loadState();
       createStars();
       
+      const introSeen = localStorage.getItem('parallax_intro_seen');
+      if (!introSeen) {
+        startIntro();
+        return;
+      }
+      
       const storySeen = localStorage.getItem('parallax_story_seen');
       if (!storySeen) {
         showStory();
@@ -841,14 +902,116 @@
       }
     }
 
-    function goToScreen(screenNum) {
+    function goToScreen(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(`screen${screenNum}`).classList.add('active');
+      const targetId = typeof screenId === 'number' ? `screen${screenId}` : screenId;
+      const target = document.getElementById(targetId);
+      if (target) target.classList.add('active');
       
-      if (screenNum === 1) renderFields();
-      if (screenNum === 2) startChat();
-      if (screenNum === 3) renderMainPage();
+      if (screenId === 1 || targetId === 'screen1') renderFields();
+      if (screenId === 2 || targetId === 'screen2') startChat();
+      if (screenId === 3 || targetId === 'screen3') renderMainPage();
     }
+    
+    const introTexts = [
+      "打开APP——刷——刷——刷——关掉。但其实……我们真的不知道我们得到了什么。",
+      "算法并不在乎你得到了什么，它只在乎你停留了多久。你沉迷的它疯狂推荐，不过脑的它格外偏爱，而那些可拓展的领域却被挡在茧房之外。",
+      "然而，我们却早已离不开算法与APP。我们依赖着它的推送，它的高效，它的内容。",
+      "我们只能紧紧攀住这根荆棘来不被时代甩下，哪怕它会让我们鲜血淋漓。",
+      "所以我做了这个小工具。它不是知识库，不是收藏夹，也不创造内容。",
+      "它只回答一个问题：下一步，往哪走？",
+      "它试着用对话剖析你真正的兴趣与能力，让你找到继续深潜的路径，或是开拓眼界的新领域。",
+      "我们希望，在被算法统治的时代里，仍有一片净土，能守住你专注前行的路。",
+      "轻轻挪动视角，新的世界就在眼前。",
+      "欢迎来到视差。"
+    ];
+    
+    let introCurrentIndex = 0;
+    let introCharIndex = 0;
+    let introTypeTimer = null;
+    let introIsTyping = false;
+    let introFinished = false;
+    
+    function startIntro() {
+      introCurrentIndex = 0;
+      introCharIndex = 0;
+      introFinished = false;
+      document.getElementById('cmdText').textContent = '';
+      document.getElementById('cmdHint').style.display = 'none';
+      document.getElementById('cmdEnterBtn').style.display = 'none';
+      goToScreen('screen-intro');
+      typeIntroText();
+    }
+    
+    function typeIntroText() {
+      if (introCurrentIndex >= introTexts.length) {
+        introFinished = true;
+        introIsTyping = false;
+        document.getElementById('cmdHint').style.display = 'none';
+        document.getElementById('cmdEnterBtn').style.display = 'block';
+        return;
+      }
+      
+      const currentText = introTexts[introCurrentIndex];
+      
+      if (introCharIndex < currentText.length) {
+        introIsTyping = true;
+        document.getElementById('cmdText').textContent += currentText[introCharIndex];
+        introCharIndex++;
+        introTypeTimer = setTimeout(typeIntroText, 50);
+      } else {
+        introIsTyping = false;
+        document.getElementById('cmdHint').style.display = 'block';
+      }
+    }
+    
+    function nextIntroText() {
+      if (introIsTyping) {
+        clearTimeout(introTypeTimer);
+        document.getElementById('cmdText').textContent = introTexts[introCurrentIndex];
+        introIsTyping = false;
+        document.getElementById('cmdHint').style.display = 'block';
+        return;
+      }
+      
+      if (introFinished) {
+        enterIntro();
+        return;
+      }
+      
+      introCurrentIndex++;
+      introCharIndex = 0;
+      document.getElementById('cmdHint').style.display = 'none';
+      
+      if (introCurrentIndex < introTexts.length) {
+        document.getElementById('cmdText').textContent += '\n\n';
+        typeIntroText();
+      } else {
+        introFinished = true;
+        document.getElementById('cmdEnterBtn').style.display = 'block';
+      }
+    }
+    
+    function enterIntro() {
+      localStorage.setItem('parallax_intro_seen', 'true');
+      goToScreen(0);
+    }
+    
+    function skipIntro() {
+      clearTimeout(introTypeTimer);
+      localStorage.setItem('parallax_intro_seen', 'true');
+      goToScreen(0);
+    }
+    
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const introScreen = document.getElementById('screen-intro');
+        if (introScreen && introScreen.classList.contains('active')) {
+          e.preventDefault();
+          nextIntroText();
+        }
+      }
+    });
 
     let currentStoryScene = 0;
     let typewriterTimeout = null;
